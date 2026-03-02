@@ -3,7 +3,7 @@ import { useTutorialState } from '../../composables/useTutorialState'
 
 const state = useTutorialState()
 
-const sentence = ['The', null, 'sat', 'on', 'the', 'mat']
+const sentence = ['On', 'the', 'mat', 'sat', 'a', null]
 </script>
 
 <template>
@@ -29,7 +29,8 @@ const sentence = ['The', null, 'sat', 'on', 'the', 'mat']
     <!-- Explanation -->
     <div class="mx-auto max-w-2xl space-y-4 text-center leading-relaxed text-text-secondary">
       <p>
-        Imagine a tiny neural network reading the sentence above. It needs to predict the missing word.
+        Imagine a tiny language model reading the sentence above left to right. It has processed every
+        word up to "a" and now needs to predict what comes next.
         Its vocabulary is just <strong class="text-text-primary">4 tokens</strong>:
       </p>
     </div>
@@ -53,7 +54,7 @@ const sentence = ['The', null, 'sat', 'on', 'the', 'mat']
     <!-- Conceptual ladder: what happened before the logits -->
     <div class="mx-auto max-w-2xl space-y-4 leading-relaxed text-text-secondary">
       <p class="text-center">
-        But what has the network actually <em>done</em> with the word "The"? Here's the conceptual ladder:
+        But what has the network actually <em>done</em> with all those words? Here's the conceptual ladder:
       </p>
 
       <div class="space-y-3">
@@ -61,8 +62,8 @@ const sentence = ['The', null, 'sat', 'on', 'the', 'mat']
           <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">1</span>
           <div>
             <strong class="text-text-primary">Embed</strong> &mdash;
-            The token "The" is converted into a vector of numbers (an <em>embedding</em>). This vector lives
-            in a high-dimensional space where similar words sit near each other.
+            Each token ("On", "the", "mat", ...) is converted into a vector of numbers (an <em>embedding</em>).
+            These vectors live in a high-dimensional space where similar words sit near each other.
           </div>
         </div>
 
@@ -70,10 +71,10 @@ const sentence = ['The', null, 'sat', 'on', 'the', 'mat']
           <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">2</span>
           <div>
             <strong class="text-text-primary">Transform</strong> &mdash;
-            This vector is repeatedly transformed through layers of the network. Each layer mixes
+            These vectors are repeatedly transformed through layers of the network. Each layer mixes
             and reshapes information, building a richer representation of the context. By the end,
-            the network holds a vector that encodes: <em>"Given everything I've read so far,
-            what should come next?"</em>
+            the network holds a vector at the last position that encodes: <em>"Given everything
+            I've read so far, what should come next?"</em>
           </div>
         </div>
 

@@ -10,8 +10,8 @@ const state = useTutorialState()
     <!-- Running example context -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Running example:</strong>
-      In our sentence <em>"The <strong class="text-text-primary">{{ state.tokens[state.targetIndex.value] }}</strong>
-      sat on the mat"</em>, the correct next word after "The" is
+      In our sentence <em>"On the mat sat a <strong class="text-text-primary">{{ state.tokens[state.targetIndex.value] }}</strong>"</em>,
+      the correct next word after "a" is
       <strong class="text-text-primary">"{{ state.tokens[state.targetIndex.value] }}"</strong>.
       Click a different token below to see how the loss changes in the next step.
     </div>

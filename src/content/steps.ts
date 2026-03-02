@@ -11,7 +11,7 @@ export const steps: StepDefinition[] = [
     number: 1,
     title: 'Logits',
     subtitle: 'Compatibility scores from the network',
-    description: `<p>The network's final layer just computed a <strong>compatibility score</strong> between the current context (<em>"The ___"</em>) and each vocabulary word. For "cat" it scored 2.0, for "dog" 1.0, for "fish" 0.5, and for "bird" −1.0.</p>
+    description: `<p>The network has read <em>"On the mat sat a"</em> and its final layer just computed a <strong>compatibility score</strong> between that context and each vocabulary word. For "cat" it scored 2.0, for "dog" 1.0, for "fish" 0.5, and for "bird" −1.0.</p>
 <p>These scores are called <strong>logits</strong>. They can be anything: negative, zero, huge. A logit of 2.0 for "cat" doesn't mean "twice as likely" as 1.0 for "dog" — the numbers live in <em>log-space</em>. What it <em>does</em> mean is that "cat" is e<sup>1</sup> ≈ 2.7× more likely than "dog" (you'll see why in the next step).</p>
 <p>Crucially, <strong>only relative differences between logits matter</strong>. Adding +100 to every logit wouldn't change the prediction at all — the same token would still win. This invariance is fundamental to how softmax works, and it's why we'll see the same logits [2, 1, 0, −1] produce identical probabilities to [102, 101, 100, 99].</p>
 <p><em>In Step 10, you'll see these exact same scores appear inside the attention mechanism — but computed between tokens rather than vocabulary words.</em></p>`,
@@ -45,7 +45,7 @@ export const steps: StepDefinition[] = [
     number: 4,
     title: 'Target Token',
     subtitle: 'What the network should have predicted',
-    description: `<p>In our training data, the sentence is <em>"The <strong>cat</strong> sat on the mat."</em> We know the answer: the missing word is "cat." But how do we tell the math what the correct answer is?</p>
+    description: `<p>In our training data, the full sentence is <em>"On the mat sat a <strong>cat</strong>."</em> We know the answer: the next word after "a" is "cat." But how do we tell the math what the correct answer is?</p>
 <p>We encode it as a <strong>one-hot vector</strong> — a list of numbers that's 0 everywhere except for a 1 at the correct position. "One-hot" because exactly one position is "hot" (activated). For our example: y = [1, 0, 0, 0] (cat=1, dog=0, fish=0, bird=0).</p>
 <p>This gives us a clean format for measuring error. The network predicts a distribution <strong>p</strong> (like [0.51, 0.24, 0.15, 0.10]). The truth is <strong>y</strong> = [1, 0, 0, 0]. The gap between p and y is exactly what training will try to close — pushing p closer to y with each step.</p>`,
   },

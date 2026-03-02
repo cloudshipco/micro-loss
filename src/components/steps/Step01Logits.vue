@@ -33,7 +33,7 @@ const topTwoRatio = computed(() => {
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
       <strong class="text-brand-light">Running example:</strong>
       <span class="text-text-secondary">
-        The network computed compatibility scores for <em>"The ___"</em>:
+        The network computed compatibility scores for <em>"On the mat sat a ___"</em>:
       </span>
       <span
         v-for="(token, index) in state.tokens"
