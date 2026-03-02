@@ -12,6 +12,7 @@ export const steps: StepDefinition[] = [
     title: 'Logits',
     subtitle: 'Compatibility scores from the model',
     description: `<p>The model has read <em>"On the mat sat a"</em> and produced a score for each vocabulary word: cat got 2.0, dog got 1.0, fish got 0.5, bird got 0.1. These raw scores are called <strong>logits</strong>.</p>
+<p>The name comes from statistics: the <strong>logit function</strong> (coined by Joseph Berkson in 1944) maps a probability to an unbounded real number via log(p/(1−p)) — the logarithm of the odds. Its inverse is the <strong>logistic</strong> (sigmoid) function, which maps back to a probability. In neural networks, "logits" refers to the raw output of the final layer <em>before</em> any normalisation into probabilities. They're called logits because they live in that same unbounded space — numbers on (−∞, +∞) that are waiting to be converted into probabilities.</p>
 <p>A logit of 2.0 for "cat" doesn't mean "twice as likely" as 1.0 for "dog." The numbers live in <em>log-space</em> — what matters is the <em>difference</em> between them. A difference of 1 means roughly 2.7× more likely (you'll see why in Step 2).</p>
 <p>Crucially, <strong>only relative differences matter</strong>. Adding +100 to every logit wouldn't change the prediction at all — the same token would still win. Logits can also be negative, zero, or very large — the sliders let you explore the full range.</p>`,
   },
