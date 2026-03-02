@@ -1,0 +1,24 @@
+{
+  "name": "micro-loss",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bunx --bun vite",
+    "build": "bunx --bun vue-tsc && bunx --bun vite build",
+    "preview": "bunx --bun vite preview"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.2.1",
+    "echarts": "^6.0.0",
+    "tailwindcss": "^4.2.1",
+    "vue": "^3.2.41",
+    "vue-echarts": "^8.0.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.4",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1",
+    "vue-tsc": "^3.2.5"
+  }
+}
