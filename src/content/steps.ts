@@ -10,10 +10,11 @@ export const steps: StepDefinition[] = [
   {
     number: 1,
     title: 'Logits',
-    subtitle: 'Raw scores from the network',
-    description: `<p>Our network just read <em>"The"</em> and passed it through layers of computation. The very last layer produced <strong>one number per word</strong> in the vocabulary. For "cat" it output 2.0, for "dog" 1.0, for "fish" 0.5, and for "bird" −1.0.</p>
-<p>These numbers are called <strong>logits</strong> — raw, unbounded scores that can be anything: negative, zero, huge. Think of them as rough votes. A logit of 2.0 for "cat" doesn't mean "twice as likely" as 1.0 for "dog" — the numbers live in <em>log-space</em> and don't have direct probabilistic meaning yet. All we know is that higher = more preferred.</p>
-<p>The name "logit" comes from "log-odds," but don't worry about the etymology. What matters: <strong>logits are the raw material</strong> we'll transform into probabilities over the next two steps.</p>`,
+    subtitle: 'Compatibility scores from the network',
+    description: `<p>The network's final layer just computed a <strong>compatibility score</strong> between the current context (<em>"The ___"</em>) and each vocabulary word. For "cat" it scored 2.0, for "dog" 1.0, for "fish" 0.5, and for "bird" −1.0.</p>
+<p>These scores are called <strong>logits</strong>. They can be anything: negative, zero, huge. A logit of 2.0 for "cat" doesn't mean "twice as likely" as 1.0 for "dog" — the numbers live in <em>log-space</em>. What it <em>does</em> mean is that "cat" is e<sup>1</sup> ≈ 2.7× more likely than "dog" (you'll see why in the next step).</p>
+<p>Crucially, <strong>only relative differences between logits matter</strong>. Adding +100 to every logit wouldn't change the prediction at all — the same token would still win. This invariance is fundamental to how softmax works, and it's why we'll see the same logits [2, 1, 0, −1] produce identical probabilities to [102, 101, 100, 99].</p>
+<p><em>In Step 10, you'll see these exact same scores appear inside the attention mechanism — but computed between tokens rather than vocabulary words.</em></p>`,
   },
   {
     number: 2,
@@ -27,7 +28,8 @@ export const steps: StepDefinition[] = [
 <li><strong>Preserves ordering</strong> — if z₁ &gt; z₂, then e<sup>z₁</sup> &gt; e<sup>z₂</sup></li>
 <li><strong>Amplifies differences</strong> — a slightly higher logit gets <em>exponentially</em> more weight, which is what we want: the network's top choice should dominate</li>
 <li><strong>Clean derivatives</strong> — d/dz e<sup>z</sup> = e<sup>z</sup>, which keeps the gradient math elegant (you'll see this pay off in Step 7)</li>
-</ol>`,
+</ol>
+<p>Here's the key connection: because we use e<sup>z</sup>, a <strong>logit difference maps to a probability ratio</strong>. If cat's logit is 1 higher than dog's, then cat is e<sup>1</sup> ≈ 2.7× more probable. A difference of 2 means e<sup>2</sup> ≈ 7.4× more probable. This is why logits are said to live in "log-space" — differences in logits correspond to multiplicative ratios in probability.</p>`,
     math: 'e^{z_i}',
   },
   {
@@ -36,7 +38,7 @@ export const steps: StepDefinition[] = [
     subtitle: 'Softmax produces a probability distribution',
     description: `<p>A valid probability distribution needs two properties: <strong>(1) every value is non-negative</strong>, and <strong>(2) they all sum to 1</strong>. After exponentiation we have property (1). To get property (2), we simply divide each exponentiated value by the total.</p>
 <p>This two-step process — exponentiate then normalize — is called <strong>softmax</strong>. It's "soft" because it approximates the "hard" maximum (argmax). Instead of picking one winner and giving it 100%, softmax spreads probability across all tokens but concentrates most of it on the highest logit. The network's raw preference becomes a clean percentage: "I'm 50.6% confident the next word is <em>cat</em>."</p>
-<p>Notice that softmax is <em>translation-invariant</em>: adding the same constant to all logits doesn't change the probabilities. Only the <strong>relative</strong> differences between logits matter.</p>`,
+<p>Softmax enforces <strong>competition</strong>: raising one token's logit steals probability from all the others. And it's <strong>translation-invariant</strong>: adding the same constant to every logit doesn't change the output at all. Use the shift buttons below to verify — only relative differences matter.</p>`,
     math: 'p_i = e^{z_i} / \\sum_j e^{z_j}',
   },
   {
@@ -109,7 +111,8 @@ export const steps: StepDefinition[] = [
 <li><strong>τ = 1</strong>: Standard softmax. The model's natural confidence level.</li>
 <li><strong>High temperature</strong> (τ → ∞): All logits are divided by a huge number, becoming nearly equal. The distribution flattens toward uniform — every token is equally likely.</li>
 </ul>
-<p>When you use ChatGPT or Claude's API and set <code>temperature=0.7</code>, this is exactly what's happening: the model's logits are divided by 0.7, making the distribution slightly sharper than normal. Lower temperature = more focused, deterministic text. Higher temperature = more creative, surprising text.</p>`,
+<p>When you use ChatGPT or Claude's API and set <code>temperature=0.7</code>, this is exactly what's happening: the model's logits are divided by 0.7, making the distribution slightly sharper than normal. Lower temperature = more focused, deterministic text. Higher temperature = more creative, surprising text.</p>
+<p>Notice this connects to something from Step 1: logits [2, 1, 0, −1] and [20, 10, 0, −10] have the same ranking, but the second set produces a much sharper distribution. Scale affects certainty — and temperature is precisely the knob that controls that scale.</p>`,
     math: 'p_i = e^{z_i/\\tau} / \\sum_j e^{z_j/\\tau}',
   },
   {
@@ -119,7 +122,7 @@ export const steps: StepDefinition[] = [
     description: `<p>You've now seen the full pipeline: logits → softmax → loss → gradient → update. But softmax plays <em>another</em> crucial role in modern neural networks — inside the <strong>attention mechanism</strong>.</p>
 <p>In attention, each word computes a <strong>query</strong> ("what am I looking for?") and every word offers a <strong>key</strong> ("here's what I contain"). The dot product Q·K measures how relevant each key is to the query — producing a set of raw scores. Sound familiar? These are logits, just with a different name.</p>
 <p>Softmax converts these scores into <strong>attention weights</strong> that sum to 1, determining how much each word contributes to the output. Same exponentiate-then-normalize machinery, different inputs.</p>
-<p>You've now seen softmax do two different jobs: <strong>(1)</strong> turn logits into next-word probabilities, and <strong>(2)</strong> turn similarity scores into attention weights. Same math, different contexts — and both are essential to how modern language models work.</p>`,
+<p>In language prediction, there's <em>one logit per vocabulary word</em>. In attention, there's <em>one logit per token pair</em>. Same pipeline &mdash; <strong>scores → softmax → weighted choice</strong> &mdash; different meaning. Everything you've learned applies directly.</p>`,
     math: '\\text{Attention} = \\text{softmax}(QK^T)V',
   },
 ]

@@ -50,17 +50,48 @@ const sentence = ['The', null, 'sat', 'on', 'the', 'mat']
       </div>
     </div>
 
-    <div class="mx-auto max-w-2xl space-y-4 text-center leading-relaxed text-text-secondary">
-      <p>
-        The network has processed <em>"The"</em> through millions of parameters &mdash; layers of matrix multiplications,
-        nonlinearities, and attention &mdash; and its very last layer has produced
-        <strong class="text-text-primary">one raw number per vocabulary word</strong>.
-        These numbers are called <strong class="text-brand-light">logits</strong>.
+    <!-- Conceptual ladder: what happened before the logits -->
+    <div class="mx-auto max-w-2xl space-y-4 leading-relaxed text-text-secondary">
+      <p class="text-center">
+        But what has the network actually <em>done</em> with the word "The"? Here's the conceptual ladder:
       </p>
-      <p>
-        But raw numbers aren't a prediction yet. We need to turn them into probabilities,
-        measure how good the prediction is, and then improve it. That's the pipeline we'll
-        trace step by step &mdash; from raw scores all the way to learning.
+
+      <div class="space-y-3">
+        <div class="flex items-start gap-3 rounded-lg bg-surface-light p-3">
+          <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">1</span>
+          <div>
+            <strong class="text-text-primary">Embed</strong> &mdash;
+            The token "The" is converted into a vector of numbers (an <em>embedding</em>). This vector lives
+            in a high-dimensional space where similar words sit near each other.
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-lg bg-surface-light p-3">
+          <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">2</span>
+          <div>
+            <strong class="text-text-primary">Transform</strong> &mdash;
+            This vector is repeatedly transformed through layers of the network. Each layer mixes
+            and reshapes information, building a richer representation of the context. By the end,
+            the network holds a vector that encodes: <em>"Given everything I've read so far,
+            what should come next?"</em>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-3 rounded-lg bg-surface-light p-3">
+          <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">3</span>
+          <div>
+            <strong class="text-text-primary">Score</strong> &mdash;
+            The final layer asks: <em>"How compatible is this context representation with each
+            vocabulary word?"</em> It computes a similarity score for each word. These scores are
+            the <strong class="text-brand-light">logits</strong>.
+          </div>
+        </div>
+      </div>
+
+      <p class="text-center">
+        So logits aren't arbitrary numbers &mdash; they're <strong class="text-text-primary">compatibility
+        scores</strong> between the current context and each possible next word. Now let's see how to
+        turn them into probabilities, measure error, and learn.
       </p>
     </div>
 
