@@ -33,7 +33,7 @@ const topTwoRatio = computed(() => {
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
       <strong class="text-brand-light">Running example:</strong>
       <span class="text-text-secondary">
-        The network computed compatibility scores for <em>"On the mat sat a ___"</em>:
+        The model produced scores for <em>"On the mat sat a ___"</em>:
       </span>
       <span
         v-for="(token, index) in state.tokens"
@@ -84,8 +84,8 @@ const topTwoRatio = computed(() => {
       <strong class="text-brand-light">Try it:</strong>
       Drag "cat"'s logit down below "dog"'s and watch the ratio flip. Then try setting
       all four logits to the same value &mdash; the ratio becomes 1.0&times; (equally likely).
-      Now scale them all up: [2, 1, 0, &minus;1] vs [20, 10, 0, &minus;10] &mdash; same ranking, but the
-      second set will produce a <em>much</em> sharper distribution (you'll see this vividly in Step 3).
+      You can also drag logits into negative territory &mdash; that's valid too. Only
+      the <em>differences</em> between logits matter, not whether they're positive or negative.
     </div>
   </div>
 </template>

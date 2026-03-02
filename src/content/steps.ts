@@ -10,23 +10,22 @@ export const steps: StepDefinition[] = [
   {
     number: 1,
     title: 'Logits',
-    subtitle: 'Compatibility scores from the network',
-    description: `<p>The network has read <em>"On the mat sat a"</em> and its final layer just computed a <strong>compatibility score</strong> between that context and each vocabulary word. For "cat" it scored 2.0, for "dog" 1.0, for "fish" 0.5, and for "bird" −1.0.</p>
-<p>These scores are called <strong>logits</strong>. They can be anything: negative, zero, huge. A logit of 2.0 for "cat" doesn't mean "twice as likely" as 1.0 for "dog" — the numbers live in <em>log-space</em>. What it <em>does</em> mean is that "cat" is e<sup>1</sup> ≈ 2.7× more likely than "dog" (you'll see why in the next step).</p>
-<p>Crucially, <strong>only relative differences between logits matter</strong>. Adding +100 to every logit wouldn't change the prediction at all — the same token would still win. This invariance is fundamental to how softmax works, and it's why we'll see the same logits [2, 1, 0, −1] produce identical probabilities to [102, 101, 100, 99].</p>
-<p><em>In Step 10, you'll see these exact same scores appear inside the attention mechanism — but computed between tokens rather than vocabulary words.</em></p>`,
+    subtitle: 'Compatibility scores from the model',
+    description: `<p>The model has read <em>"On the mat sat a"</em> and produced a score for each vocabulary word: cat got 2.0, dog got 1.0, fish got 0.5, bird got 0.1. These raw scores are called <strong>logits</strong>.</p>
+<p>A logit of 2.0 for "cat" doesn't mean "twice as likely" as 1.0 for "dog." The numbers live in <em>log-space</em> — what matters is the <em>difference</em> between them. A difference of 1 means roughly 2.7× more likely (you'll see why in Step 2).</p>
+<p>Crucially, <strong>only relative differences matter</strong>. Adding +100 to every logit wouldn't change the prediction at all — the same token would still win. Logits can also be negative, zero, or very large — the sliders let you explore the full range.</p>`,
   },
   {
     number: 2,
     title: 'Exponentiation',
     subtitle: 'From log-space to positive values',
     description: `<p>We need to convert raw scores into something that behaves like probabilities. The first problem: logits can be negative, but probabilities can't be. We need a function that maps <em>any</em> real number to a positive number.</p>
-<p>Why not just use <strong>|z|</strong> (absolute value)? Because −3 and +3 would become equally likely — destroying the ordering the network learned. What about <strong>max(0, z)</strong>? Then all negative logits collapse to 0, losing information.</p>
+<p>Why not just use <strong>|z|</strong> (absolute value)? Because −3 and +3 would become equally likely — destroying the ordering the model learned. What about <strong>max(0, z)</strong>? Then all negative logits collapse to 0, losing information.</p>
 <p>Instead, we use <strong>e<sup>z</sup></strong> — Euler's number (~2.718) raised to the power of z. This is the right choice for four reasons:</p>
 <ol>
 <li><strong>Always positive</strong> — e<sup>z</sup> &gt; 0 for any z, even very negative ones</li>
 <li><strong>Preserves ordering</strong> — if z₁ &gt; z₂, then e<sup>z₁</sup> &gt; e<sup>z₂</sup></li>
-<li><strong>Amplifies differences</strong> — a slightly higher logit gets <em>exponentially</em> more weight, which is what we want: the network's top choice should dominate</li>
+<li><strong>Amplifies differences</strong> — a slightly higher logit gets <em>exponentially</em> more weight, which is what we want: the model's top choice should dominate</li>
 <li><strong>Clean derivatives</strong> — d/dz e<sup>z</sup> = e<sup>z</sup>, which keeps the gradient math elegant (you'll see this pay off in Step 7)</li>
 </ol>
 <p>Here's the key connection: because we use e<sup>z</sup>, a <strong>logit difference maps to a probability ratio</strong>. If cat's logit is 1 higher than dog's, then cat is e<sup>1</sup> ≈ 2.7× more probable. A difference of 2 means e<sup>2</sup> ≈ 7.4× more probable. This is why logits are said to live in "log-space" — differences in logits correspond to multiplicative ratios in probability.</p>`,
@@ -37,17 +36,17 @@ export const steps: StepDefinition[] = [
     title: 'Normalization',
     subtitle: 'Softmax produces a probability distribution',
     description: `<p>A valid probability distribution needs two properties: <strong>(1) every value is non-negative</strong>, and <strong>(2) they all sum to 1</strong>. After exponentiation we have property (1). To get property (2), we simply divide each exponentiated value by the total.</p>
-<p>This two-step process — exponentiate then normalize — is called <strong>softmax</strong>. It's "soft" because it approximates the "hard" maximum (argmax). Instead of picking one winner and giving it 100%, softmax spreads probability across all tokens but concentrates most of it on the highest logit. The network's raw preference becomes a clean percentage: "I'm 50.6% confident the next word is <em>cat</em>."</p>
+<p>This two-step process — exponentiate then normalize — is called <strong>softmax</strong>. It's "soft" because it approximates the "hard" maximum (argmax). Instead of picking one winner and giving it 100%, softmax spreads probability across all tokens but concentrates most of it on the highest logit. The model's raw preference becomes a clean percentage: "I'm 50.6% confident the next word is <em>cat</em>."</p>
 <p>Softmax enforces <strong>competition</strong>: raising one token's logit steals probability from all the others. And it's <strong>translation-invariant</strong>: adding the same constant to every logit doesn't change the output at all. Use the shift buttons below to verify — only relative differences matter.</p>`,
     math: 'p_i = e^{z_i} / \\sum_j e^{z_j}',
   },
   {
     number: 4,
     title: 'Target Token',
-    subtitle: 'What the network should have predicted',
+    subtitle: 'What the model should have predicted',
     description: `<p>In our training data, the full sentence is <em>"On the mat sat a <strong>cat</strong>."</em> We know the answer: the next word after "a" is "cat." But how do we tell the math what the correct answer is?</p>
 <p>We encode it as a <strong>one-hot vector</strong> — a list of numbers that's 0 everywhere except for a 1 at the correct position. "One-hot" because exactly one position is "hot" (activated). For our example: y = [1, 0, 0, 0] (cat=1, dog=0, fish=0, bird=0).</p>
-<p>This gives us a clean format for measuring error. The network predicts a distribution <strong>p</strong> (like [0.51, 0.24, 0.15, 0.10]). The truth is <strong>y</strong> = [1, 0, 0, 0]. The gap between p and y is exactly what training will try to close — pushing p closer to y with each step.</p>`,
+<p>This gives us a clean format for measuring error. The model predicts a distribution <strong>p</strong> (like [0.51, 0.24, 0.15, 0.10]). The truth is <strong>y</strong> = [1, 0, 0, 0]. The gap between p and y is exactly what training will try to close — pushing p closer to y with each step.</p>`,
   },
   {
     number: 5,
@@ -56,11 +55,11 @@ export const steps: StepDefinition[] = [
     description: `<p>We need a single number — a <strong>"loss"</strong> — that's small when the prediction is good and large when it's bad. The cross-entropy loss is simply <strong>−log(p<sub>target</sub>)</strong>: the negative log of the probability assigned to the correct answer.</p>
 <p>Why −log and not something simpler? Consider what happens at different confidence levels:</p>
 <ul>
-<li>Network says p = 0.9 (quite confident, correct): loss = 0.105. <em>Small penalty — good job.</em></li>
-<li>Network says p = 0.5 (coin flip): loss = 0.693. <em>Moderate penalty — you should know better.</em></li>
-<li>Network says p = 0.01 (almost certain it was wrong): loss = 4.605. <em>Enormous penalty — catastrophic mistake.</em></li>
+<li>Model says p = 0.9 (quite confident, correct): loss = 0.105. <em>Small penalty — good job.</em></li>
+<li>Model says p = 0.5 (coin flip): loss = 0.693. <em>Moderate penalty — you should know better.</em></li>
+<li>Model says p = 0.01 (almost certain it was wrong): loss = 4.605. <em>Enormous penalty — catastrophic mistake.</em></li>
 </ul>
-<p>A simpler measure like <strong>(1 − p)</strong> gives only 0.1 vs 0.99 for those cases — it treats moderate and catastrophic mistakes too similarly. The logarithm's explosive growth near zero is exactly what we want: <strong>confidently wrong predictions must be punished severely</strong>, otherwise the network would never learn to avoid them.</p>`,
+<p>A simpler measure like <strong>(1 − p)</strong> gives only 0.1 vs 0.99 for those cases — it treats moderate and catastrophic mistakes too similarly. The logarithm's explosive growth near zero is exactly what we want: <strong>confidently wrong predictions must be punished severely</strong>, otherwise the model would never learn to avoid them.</p>`,
     math: 'L = -\\log p_y',
   },
   {

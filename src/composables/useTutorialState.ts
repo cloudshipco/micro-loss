@@ -42,7 +42,7 @@ export interface TutorialState {
 
 const TUTORIAL_STATE_KEY: InjectionKey<TutorialState> = Symbol('tutorialState')
 
-const DEFAULT_LOGITS = [2.0, 1.0, 0.5, -1.0]
+const DEFAULT_LOGITS = [2.0, 1.0, 0.5, 0.1]
 
 export function createTutorialState(): TutorialState {
   const logits = ref([...DEFAULT_LOGITS])

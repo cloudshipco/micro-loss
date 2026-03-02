@@ -28,7 +28,7 @@ const state = useTutorialState()
       </p>
       <p class="mt-2">
         The magnitude is proportional to probability: a wrong token with 30% probability gets pushed
-        down 3x harder than one with 10%. The network focuses its effort on the biggest offenders.
+        down 3x harder than one with 10%. The model focuses its effort on the biggest offenders.
       </p>
     </div>
 

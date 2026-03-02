@@ -235,7 +235,7 @@ const lossChartOption = computed(() => ({
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Try it:</strong>
       Click "Train 20 Steps" and watch the loss curve. It drops steeply at first (big easy gains)
-      then flattens as the network approaches the optimum. Try adjusting the learning rate:
+      then flattens as the model approaches the optimum. Try adjusting the learning rate:
       too high (> 1.0) and the loss may oscillate; too low (< 0.1) and convergence is slow.
       This is gradient descent in action &mdash; the core algorithm behind all deep learning.
     </div>

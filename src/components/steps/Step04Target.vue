@@ -44,9 +44,9 @@ const state = useTutorialState()
     <!-- Try it callout -->
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Try it:</strong>
-      Click "bird" as the target. Since the network gave "bird" the lowest probability
-      (because its logit was the lowest at −1.0), the gap between prediction and target
-      is now large. The loss in the next step will be much higher — the network is being
+      Click "bird" as the target. Since the model gave "bird" the lowest probability
+      (because its logit was the lowest), the gap between prediction and target is now
+      large. The loss in the next step will be much higher &mdash; the model is being
       punished for a bad prediction.
     </div>
   </div>

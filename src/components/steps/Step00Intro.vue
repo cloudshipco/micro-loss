@@ -10,7 +10,7 @@ const sentence = ['On', 'the', 'mat', 'sat', 'a', null]
   <section class="border-b border-surface-lighter py-12">
     <div class="mb-8 text-center">
       <h2 class="mb-2 text-2xl font-bold text-text-primary">The Scenario</h2>
-      <p class="text-sm text-brand-light">A tiny language model is trying to predict a word</p>
+      <p class="text-sm text-brand-light">How does a language model turn raw scores into a prediction?</p>
     </div>
 
     <!-- The sentence with blank -->
@@ -29,8 +29,7 @@ const sentence = ['On', 'the', 'mat', 'sat', 'a', null]
     <!-- Explanation -->
     <div class="mx-auto max-w-2xl space-y-4 text-center leading-relaxed text-text-secondary">
       <p>
-        Imagine a tiny language model reading the sentence above left to right. It has processed every
-        word up to "a" and now needs to predict what comes next.
+        A language model has read this sentence left to right and needs to predict the next word.
         Its vocabulary is just <strong class="text-text-primary">4 tokens</strong>:
       </p>
     </div>
@@ -51,49 +50,30 @@ const sentence = ['On', 'the', 'mat', 'sat', 'a', null]
       </div>
     </div>
 
-    <!-- Conceptual ladder: what happened before the logits -->
     <div class="mx-auto max-w-2xl space-y-4 leading-relaxed text-text-secondary">
       <p class="text-center">
-        But what has the network actually <em>done</em> with all those words? Here's the conceptual ladder:
+        The model has produced a raw score for each word &mdash; how strongly it thinks that word
+        comes next. But raw scores aren't a prediction. How do they become probabilities?
+        How do we measure whether the prediction is good? And how does the model improve?
       </p>
 
-      <div class="space-y-3">
-        <div class="flex items-start gap-3 rounded-lg bg-surface-light p-3">
-          <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">1</span>
-          <div>
-            <strong class="text-text-primary">Embed</strong> &mdash;
-            Each token ("On", "the", "mat", ...) is converted into a vector of numbers (an <em>embedding</em>).
-            These vectors live in a high-dimensional space where similar words sit near each other.
-          </div>
-        </div>
-
-        <div class="flex items-start gap-3 rounded-lg bg-surface-light p-3">
-          <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">2</span>
-          <div>
-            <strong class="text-text-primary">Transform</strong> &mdash;
-            These vectors are repeatedly transformed through layers of the network. Each layer mixes
-            and reshapes information, building a richer representation of the context. By the end,
-            the network holds a vector at the last position that encodes: <em>"Given everything
-            I've read so far, what should come next?"</em>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-3 rounded-lg bg-surface-light p-3">
-          <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand/20 text-xs font-bold text-brand-light">3</span>
-          <div>
-            <strong class="text-text-primary">Score</strong> &mdash;
-            The final layer asks: <em>"How compatible is this context representation with each
-            vocabulary word?"</em> It computes a similarity score for each word. These scores are
-            the <strong class="text-brand-light">logits</strong>.
-          </div>
-        </div>
+      <!-- What this tutorial covers -->
+      <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
+        <strong class="text-text-primary">This tutorial covers:</strong>
+        <span class="text-text-secondary">
+          the pipeline from raw scores to learning &mdash; softmax, cross-entropy loss, gradients,
+          and gradient descent. No prior machine learning knowledge needed.
+        </span>
       </div>
 
-      <p class="text-center">
-        So logits aren't arbitrary numbers &mdash; they're <strong class="text-text-primary">compatibility
-        scores</strong> between the current context and each possible next word. Now let's see how to
-        turn them into probabilities, measure error, and learn.
-      </p>
+      <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
+        <strong class="text-text-primary">This tutorial does not cover:</strong>
+        <span class="text-text-secondary">
+          how the model produced those scores in the first place (embeddings, attention layers,
+          transformer architecture). We start where the model's internal computation ends &mdash;
+          at the raw output scores.
+        </span>
+      </div>
     </div>
 
     <!-- Pipeline preview -->
