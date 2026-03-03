@@ -111,8 +111,8 @@ function shiftAllLogits(delta: number) {
       </div>
       <p class="mt-3 text-sm text-text-secondary">
         The probabilities don't change! Shifting all logits by the same amount cancels out in the
-        division. This is why masking in attention works: setting a logit to <strong>&minus;&infin;</strong>
-        effectively removes that token from consideration, because e<sup>&minus;&infin;</sup> = 0.
+        division. This means you can effectively remove a token from consideration by giving it
+        an extremely negative logit, because e<sup>(very negative)</sup> is essentially 0.
       </p>
     </div>
 
@@ -120,7 +120,7 @@ function shiftAllLogits(delta: number) {
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-text-primary">Key insight &mdash; softmax enforces competition:</strong>
       The probabilities always sum to exactly 1.0 — check the pie chart. Every token's probability
-      comes at the expense of the others. Go back to Step 6 and raise just "cat"'s logit &mdash;
+      comes at the expense of the others. Try raising just one token's logit using the sliders above &mdash;
       watch how the other tokens' probabilities shrink. Softmax redistributes belief: there's a fixed
       amount of probability to go around, and the tokens are competing for it.
     </div>

@@ -43,7 +43,7 @@ const pipeline = [
       <p>
         A language model is trained to predict the next word in a sequence. We'll trace the complete
         journey: from raw training data all the way to generating new text — using a toy vocabulary
-        of just <strong class="text-text-primary">4 tokens</strong>:
+        of just <strong class="text-text-primary">4 tokens</strong> (words or word-fragments — the smallest units the model works with):
       </p>
     </div>
 

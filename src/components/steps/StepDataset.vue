@@ -38,8 +38,8 @@ function next() {
   <div class="space-y-6">
     <!-- What a language model does -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">The goal: predict the next word.</strong>
-      Given a sequence of words (the context), what comes next?
+      <strong class="text-text-primary">The goal: predict the next token.</strong>
+      Given a sequence of tokens (the context), what comes next?
       Training data provides millions of examples with known answers.
     </div>
 

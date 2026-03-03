@@ -11,6 +11,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "echarts": "^6.0.0",
+    "katex": "^0.16.33",
     "tailwindcss": "^4.2.1",
     "vue": "^3.2.41",
     "vue-echarts": "^8.0.1"

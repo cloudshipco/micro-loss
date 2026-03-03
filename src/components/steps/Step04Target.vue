@@ -12,7 +12,7 @@ provideTutorialState(state)
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Running example:</strong>
       In our sentence <em>"the cat ate <strong class="text-text-primary">{{ state.tokens[state.targetIndex.value] }}</strong>"</em>,
-      the correct next word after "a" is
+      the correct next word after "ate" is
       <strong class="text-text-primary">"{{ state.tokens[state.targetIndex.value] }}"</strong>.
       Click a different token below to see how the loss changes in the next step.
     </div>
@@ -22,7 +22,7 @@ provideTutorialState(state)
     <!-- One-hot visualization -->
     <div class="rounded-lg bg-surface-light p-4">
       <h4 class="mb-2 text-sm font-medium text-text-secondary">
-        One-hot target y vs. network prediction p
+        One-hot target y vs. model prediction p
       </h4>
       <div class="grid grid-cols-4 gap-2 text-center">
         <div

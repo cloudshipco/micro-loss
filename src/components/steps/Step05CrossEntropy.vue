@@ -82,7 +82,9 @@ const referencePoints = [
 
     <p class="text-sm text-text-secondary">
       The yellow dot shows where we are on the curve. Move the logit sliders above to watch it slide along
-      −log(p). Notice the punishing asymmetry: the curve is gentle near p=1 but shoots to infinity near p=0.
+      −log(p). The dashed grey line shows (1&minus;p), a simpler alternative: notice how flat it is near p=0
+      compared to −log(p). At p=0.01, (1&minus;p) gives 0.99 while −log(p) gives 4.6 — the logarithm
+      punishes confidently wrong predictions far more severely, which is exactly the behavior we need.
     </p>
   </div>
 </template>

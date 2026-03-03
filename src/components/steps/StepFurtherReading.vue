@@ -38,9 +38,44 @@ const resources = [
   {
     title: 'LLM Visualization — Brendan Bycroft',
     url: 'https://bbycroft.net/llm',
-    description: '3D interactive visualization of a GPT model. Watch data flow through embeddings, attention heads, and MLP layers in real time.',
+    description: '3D interactive visualization of a GPT model. Watch data flow through embeddings, attention heads, and feedforward layers in real time.',
     tag: 'Interactive',
     tagColor: '#10b981',
+  },
+  {
+    title: 'Let\'s build the GPT Tokenizer — Andrej Karpathy',
+    url: 'https://www.youtube.com/watch?v=zduSFxRajkE',
+    description: 'Deep dive into how tokenizers work: Byte Pair Encoding, vocabulary construction, and why tokenization matters for model performance.',
+    tag: 'Video',
+    tagColor: '#ef4444',
+  },
+  {
+    title: 'Attention Is All You Need — Vaswani et al. (2017)',
+    url: 'https://arxiv.org/abs/1706.03762',
+    description: 'The original transformer paper. Introduced the architecture that powers every modern language model, including the attention mechanism discussed in Step 18.',
+    tag: 'Paper',
+    tagColor: '#8b5cf6',
+  },
+  {
+    title: 'Adam: A Method for Stochastic Optimization — Kingma & Ba (2015)',
+    url: 'https://arxiv.org/abs/1412.6980',
+    description: 'The paper introducing the Adam optimizer covered in Step 15. Short, readable, and one of the most cited papers in machine learning.',
+    tag: 'Paper',
+    tagColor: '#8b5cf6',
+  },
+  {
+    title: 'A Mathematical Theory of Communication — Claude Shannon (1948)',
+    url: 'https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf',
+    description: 'The foundational paper that introduced entropy and cross-entropy as measures of information. The cross-entropy loss in Step 10 comes directly from this work.',
+    tag: 'Paper',
+    tagColor: '#8b5cf6',
+  },
+  {
+    title: 'Learning representations by back-propagating errors — Rumelhart, Hinton & Williams (1986)',
+    url: 'https://www.nature.com/articles/323533a0',
+    description: 'The Nature paper that popularised backpropagation for neural networks. The algorithm in Step 12 — walking backward through the computation graph, multiplying local derivatives — is exactly what this paper describes.',
+    tag: 'Paper',
+    tagColor: '#8b5cf6',
   },
 ]
 </script>

@@ -39,9 +39,10 @@ const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'] as const
     <!-- Tie-back to the main tutorial -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-text-primary">Two jobs, same math:</strong>
-      You've now seen softmax do its first job: turning logits into <em>next-word probabilities</em>.
-      Here's its second job: turning similarity scores into <em>attention weights</em>.
-      The inputs are different (dot-product scores instead of network output logits), but the
+      You've now seen softmax do its first job: turning logits into <em>next-token probabilities</em>.
+      Here's its second job: turning similarity scores into <em>attention weights</em> — values that
+      control how much each token in the context contributes to the output at a given position.
+      The inputs are different (dot-product scores instead of model output logits), but the
       exponentiate-then-normalize machinery is identical.
     </div>
 
@@ -114,13 +115,13 @@ const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'] as const
       alignment between query and key, and softmax converts those alignment scores into weights.
     </div>
 
-    <!-- Summary -->
-    <div class="rounded-lg border border-positive/30 bg-positive/5 p-4 text-sm text-text-secondary">
-      <strong class="text-positive">Congratulations!</strong>
-      You've traced the complete pipeline from raw logits to trained predictions, and seen softmax
-      in both of its key roles. These aren't simplified toy versions &mdash; the exact same
-      exponentiation, normalization, cross-entropy loss, and gradient descent you explored here
-      run inside every modern language model, billions of times per forward pass.
+    <!-- Scope note -->
+    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
+      <strong class="text-text-primary">Scope note:</strong>
+      The attention mechanism's internals are beyond this tutorial's main scope &mdash; this step
+      is a brief illustration of how softmax is reused in a second role. The same
+      exponentiate-then-normalize pipeline you learned for next-token prediction appears here,
+      just with different inputs.
     </div>
   </div>
 </template>

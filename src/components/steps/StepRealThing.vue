@@ -13,7 +13,7 @@ const comparisons = [
     dimension: 'Parameters',
     ours: `${TOTAL_PARAMETERS}`,
     production: 'Hundreds of billions to trillions',
-    detail: 'GPT-3 has 175 billion. GPT-4 is estimated at over a trillion. The architecture is structurally identical to ours — same matrix operations — just with vastly larger dimensions. Each attention head, embedding vector, and MLP layer is wider and deeper.',
+    detail: 'GPT-3 has 175 billion. GPT-4 is estimated at over a trillion. The architecture is structurally identical to ours — same matrix operations — just with vastly larger dimensions. Each attention head, embedding vector, and MLP (multilayer perceptron — the feedforward network inside each transformer layer) is wider and deeper.',
   },
   {
     dimension: 'Training data',
@@ -25,7 +25,7 @@ const comparisons = [
     dimension: 'Context length',
     ours: '4 tokens',
     production: '128K+ tokens',
-    detail: 'Early GPT models had context windows of 2K–4K tokens. Modern models like Claude and GPT-4 support 128K+ tokens — meaning they can process entire books in a single forward pass. This requires efficient attention mechanisms (not the O(n²) vanilla version).',
+    detail: 'Early GPT models had context windows of 2K–4K tokens. Modern models like Claude and GPT-4 support 128K+ tokens — meaning they can process entire books in a single forward pass. This requires specialised attention implementations (the details are beyond this tutorial\'s scope).',
   },
   {
     dimension: 'Training time',
@@ -70,7 +70,7 @@ const faqs = [
   },
   {
     question: 'What about hallucinations?',
-    answer: 'The model samples from a probability distribution — it doesn\'t have a concept of "ground truth." If the training data contains conflicting information, or if the model is asked about something rare, it generates plausible-sounding text based on learned patterns rather than verified facts. This is an active area of research; techniques like retrieval-augmented generation (RAG) and improved training methods aim to reduce hallucinations.',
+    answer: 'The model samples from a probability distribution — it doesn\'t have a concept of "ground truth." If the training data contains conflicting information, or if the model is asked about something rare, it generates plausible-sounding text based on learned patterns rather than verified facts. This is an active area of research; various techniques (beyond the scope of this tutorial) aim to reduce hallucinations.',
   },
   {
     question: 'How do chat models like ChatGPT and Claude differ from base models?',

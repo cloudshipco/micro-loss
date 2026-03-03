@@ -77,7 +77,7 @@ const ratioInsight = computed(() => {
     <!-- Try it callout -->
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Try it:</strong>
-      Go back and set two logits to 1.0 and 2.0 (a difference of just 1). After exponentiation
+      Set two logits to 1.0 and 2.0 using the sliders above (a difference of just 1). After exponentiation
       they become e<sup>1</sup> &asymp; 2.72 and e<sup>2</sup> &asymp; 7.39 &mdash; a ratio of ~2.7&times;.
       Now try 2.0 and 4.0 (difference of 2): e<sup>2</sup> &asymp; 7.39 vs e<sup>4</sup> &asymp; 54.60 &mdash; ~7.4&times;.
       Small logit differences become <em>huge</em> after exponentiation. This amplification is a feature,
