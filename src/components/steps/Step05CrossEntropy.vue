@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import LossCurve from '../charts/LossCurve.vue'
 import ValueDisplay from '../ui/ValueDisplay.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 
 const targetProb = computed(() => state.probabilities.value[state.targetIndex.value])
 const targetToken = computed(() => state.tokens[state.targetIndex.value])

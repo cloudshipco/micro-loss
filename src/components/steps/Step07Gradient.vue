@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import GradientArrows from '../ui/GradientArrows.vue'
 import MathBlock from '../ui/MathBlock.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 </script>
 
 <template>

@@ -15,6 +15,8 @@ const props = defineProps<{
   title?: string
   precision?: number
   yAxisLabel?: string
+  yMin?: number
+  yMax?: number
 }>()
 
 const option = computed(() => ({
@@ -41,6 +43,8 @@ const option = computed(() => ({
     axisLabel: { color: '#9e9bb0' },
     splitLine: { lineStyle: { color: '#363254', type: 'dashed' as const } },
     ...(props.yAxisLabel ? { name: props.yAxisLabel, nameTextStyle: { color: '#9e9bb0' } } : {}),
+    ...(props.yMin !== undefined ? { min: props.yMin } : {}),
+    ...(props.yMax !== undefined ? { max: props.yMax } : {}),
   },
   series: [{
     type: 'bar' as const,

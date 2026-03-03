@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import TokenSelector from '../ui/TokenSelector.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 </script>
 
 <template>

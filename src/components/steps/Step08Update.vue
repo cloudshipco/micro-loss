@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import { useAnimatedUpdate } from '../../composables/useAnimatedUpdate'
 import { computeSoftmax } from '../../engine/softmax'
 import { computeCrossEntropyLoss } from '../../engine/loss'
@@ -18,7 +18,8 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 use([ELineChart, GridComponent, TooltipComponent, CanvasRenderer])
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 const { isAnimating, beforeLoss, afterLoss, animateStep } = useAnimatedUpdate(state)
 
 const labels = computed(() => [...state.tokens])
@@ -229,6 +230,8 @@ const lossChartOption = computed(() => ({
       title="Probabilities after update"
       :precision="4"
       y-axis-label="probability"
+      :y-min="0"
+      :y-max="1"
     />
 
     <!-- Try it callout -->

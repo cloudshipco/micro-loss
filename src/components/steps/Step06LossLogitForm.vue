@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import MathBlock from '../ui/MathBlock.vue'
 import ValueDisplay from '../ui/ValueDisplay.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 
 const targetToken = computed(() => state.tokens[state.targetIndex.value])
 const targetLogit = computed(() => state.logits.value[state.targetIndex.value])

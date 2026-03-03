@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import BarChart from '../charts/BarChart.vue'
 import MathBlock from '../ui/MathBlock.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 const labels = computed(() => [...state.tokens])
 
 // Compute the pairwise ratios for the top two tokens to show logit-diff → ratio

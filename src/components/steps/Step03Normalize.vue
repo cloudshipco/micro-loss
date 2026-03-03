@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import BarChart from '../charts/BarChart.vue'
 import PieChart from '../charts/PieChart.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 const labels = computed(() => [...state.tokens])
 
 // Track probabilities before and after shift to prove invariance
@@ -60,6 +61,8 @@ function shiftAllLogits(delta: number) {
         title="Probabilities"
         :precision="4"
         y-axis-label="probability"
+        :y-min="0"
+        :y-max="1"
       />
       <PieChart
         :labels="labels"
@@ -117,7 +120,7 @@ function shiftAllLogits(delta: number) {
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-text-primary">Key insight &mdash; softmax enforces competition:</strong>
       The probabilities always sum to exactly 1.0 — check the pie chart. Every token's probability
-      comes at the expense of the others. Go back to Step 1 and raise just "cat"'s logit &mdash;
+      comes at the expense of the others. Go back to Step 6 and raise just "cat"'s logit &mdash;
       watch how the other tokens' probabilities shrink. Softmax redistributes belief: there's a fixed
       amount of probability to go around, and the tokens are competing for it.
     </div>

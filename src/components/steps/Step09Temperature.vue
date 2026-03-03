@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import TemperatureSlider from '../ui/TemperatureSlider.vue'
 import BarChart from '../charts/BarChart.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 const labels = computed(() => [...state.tokens])
 </script>
 
@@ -21,6 +22,8 @@ const labels = computed(() => [...state.tokens])
           :colors="state.tokenColors"
           :precision="4"
           y-axis-label="probability"
+          :y-min="0"
+          :y-max="1"
         />
       </div>
       <div>
@@ -33,6 +36,8 @@ const labels = computed(() => [...state.tokens])
           :colors="state.tokenColors"
           :precision="4"
           y-axis-label="probability"
+          :y-min="0"
+          :y-max="1"
         />
       </div>
     </div>

@@ -1,35 +1,53 @@
 <script setup lang="ts">
-import { createTutorialState, provideTutorialState } from './composables/useTutorialState'
 import { steps } from './content/steps'
 import Header from './components/layout/Header.vue'
 import ScrollLayout from './components/layout/ScrollLayout.vue'
 import StepSection from './components/layout/StepSection.vue'
 import Step00Intro from './components/steps/Step00Intro.vue'
+import StepDataset from './components/steps/StepDataset.vue'
+import StepTokenization from './components/steps/StepTokenization.vue'
+import StepTheModel from './components/steps/StepTheModel.vue'
+import StepForwardPass from './components/steps/StepForwardPass.vue'
+import StepNextToken from './components/steps/StepNextToken.vue'
 import Step01Logits from './components/steps/Step01Logits.vue'
 import Step02Exp from './components/steps/Step02Exp.vue'
 import Step03Normalize from './components/steps/Step03Normalize.vue'
 import Step04Target from './components/steps/Step04Target.vue'
 import Step05CrossEntropy from './components/steps/Step05CrossEntropy.vue'
 import Step06LossLogitForm from './components/steps/Step06LossLogitForm.vue'
+import StepBackpropagation from './components/steps/StepBackpropagation.vue'
 import Step07Gradient from './components/steps/Step07Gradient.vue'
 import Step08Update from './components/steps/Step08Update.vue'
+import StepAdam from './components/steps/StepAdam.vue'
+import StepTrainingLoop from './components/steps/StepTrainingLoop.vue'
 import Step09Temperature from './components/steps/Step09Temperature.vue'
 import Step10Attention from './components/steps/Step10Attention.vue'
-
-const state = createTutorialState()
-provideTutorialState(state)
+import StepInference from './components/steps/StepInference.vue'
+import StepRealThing from './components/steps/StepRealThing.vue'
+import StepFurtherReading from './components/steps/StepFurtherReading.vue'
 
 const stepComponents = [
-  Step01Logits,
-  Step02Exp,
-  Step03Normalize,
-  Step04Target,
-  Step05CrossEntropy,
-  Step06LossLogitForm,
-  Step07Gradient,
-  Step08Update,
-  Step09Temperature,
-  Step10Attention,
+  StepDataset,         // Step  1: The Dataset
+  StepTokenization,    // Step  2: Tokenization
+  StepTheModel,        // Step  3: The Model
+  StepForwardPass,     // Step  4: The Forward Pass
+  StepNextToken,       // Step  5: From Context to Scores
+  Step01Logits,        // Step  6: Logits
+  Step02Exp,           // Step  7: Exponentiation
+  Step03Normalize,     // Step  8: Normalization
+  Step04Target,        // Step  9: Target Token
+  Step05CrossEntropy,  // Step 10: Cross-Entropy Loss
+  Step06LossLogitForm, // Step 11: Loss in Logit Form
+  StepBackpropagation, // Step 12: Backpropagation (NEW)
+  Step07Gradient,      // Step 13: The Gradient
+  Step08Update,        // Step 14: Gradient Descent Update
+  StepAdam,            // Step 15: Adam Optimizer (NEW)
+  StepTrainingLoop,    // Step 16: Training Loop
+  Step09Temperature,   // Step 17: Temperature
+  Step10Attention,     // Step 18: Attention Connection
+  StepInference,       // Step 19: Inference
+  StepRealThing,       // Step 20: The Real Thing (NEW)
+  StepFurtherReading,  // Step 21: Further Reading (NEW)
 ]
 </script>
 

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useTutorialState } from '../../composables/useTutorialState'
+import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import LogitSliders from '../ui/LogitSliders.vue'
 import BarChart from '../charts/BarChart.vue'
 
-const state = useTutorialState()
+const state = createTutorialState()
+provideTutorialState(state)
 const labels = computed(() => [...state.tokens])
 
 // Logit difference → probability ratio for the top two tokens
@@ -58,6 +59,8 @@ const topTwoRatio = computed(() => {
           title="Raw Logits"
           :precision="1"
           y-axis-label="logit value"
+          :y-min="-6"
+          :y-max="6"
         />
       </div>
     </div>
