@@ -15,16 +15,16 @@ import { CanvasRenderer } from 'echarts/renderers'
 
 use([ELineChart, GridComponent, TooltipComponent, CanvasRenderer])
 
-const DEFAULT_LOGITS = [2.0, 1.0, 0.5, 0.1]
+const DEFAULT_LOGITS = [0.1, 0.5, 1.0, 2.0]
 
-// Training examples: context → target
+// Training examples: context → target (from repeating "the cat ate fish")
 const TRAINING_EXAMPLES = [
-  { context: 'On the mat sat a', target: 0, targetWord: 'cat' },
-  { context: 'The loyal golden', target: 1, targetWord: 'dog' },
-  { context: 'Swimming in the', target: 2, targetWord: 'fish' },
-  { context: 'Flying through the', target: 3, targetWord: 'bird' },
-  { context: 'Beside the sleeping', target: 0, targetWord: 'cat' },
-  { context: 'Barking at the', target: 3, targetWord: 'bird' },
+  { context: 'the cat ate', target: 3, targetWord: 'fish' },
+  { context: 'cat ate fish', target: 0, targetWord: 'the' },
+  { context: 'ate fish the', target: 1, targetWord: 'cat' },
+  { context: 'fish the cat', target: 2, targetWord: 'ate' },
+  { context: 'the cat', target: 2, targetWord: 'ate' },
+  { context: 'ate fish', target: 0, targetWord: 'the' },
 ]
 
 const useMultiExample = ref(false)
@@ -41,7 +41,7 @@ const adamState = ref(initAdam(4))
 const outputLog = ref<{ step: number; tokens: string[]; loss: number }[]>([])
 
 const currentTargetIndex = computed(() => {
-  if (!useMultiExample.value) return 0
+  if (!useMultiExample.value) return 3
   return TRAINING_EXAMPLES[stepCount.value % TRAINING_EXAMPLES.length].target
 })
 
@@ -98,7 +98,7 @@ async function runSteps(totalSteps: number) {
   for (let i = 0; i < totalSteps; i++) {
     const targetIdx = useMultiExample.value
       ? TRAINING_EXAMPLES[(stepCount.value) % TRAINING_EXAMPLES.length].target
-      : 0
+      : 3
 
     const softmaxResult = computeSoftmax(logits)
     const loss = computeCrossEntropyLoss(softmaxResult.probabilities, targetIdx)
@@ -122,7 +122,7 @@ async function runSteps(totalSteps: number) {
     // Log output at checkpoints
     if (stepCount.value === 1 || stepCount.value % 10 === 0 || i === totalSteps - 1) {
       const sample = generateSample(logits)
-      const sampleLoss = computeCrossEntropyLoss(computeSoftmax(logits).probabilities, 0)
+      const sampleLoss = computeCrossEntropyLoss(computeSoftmax(logits).probabilities, 3)
       outputLog.value = [...outputLog.value, { step: stepCount.value, tokens: sample, loss: sampleLoss }]
     }
 
@@ -195,7 +195,7 @@ const lossChartOption = computed(() => ({
       <strong class="text-text-primary">The full loop:</strong>
       Real training isn't a single gradient step — it's millions of repetitions.
       Each iteration: compute logits → softmax → loss → gradient → update logits → repeat.
-      Watch the loss curve fall as the model learns to predict "cat" from the example context.
+      Watch the loss curve fall as the model learns to predict "fish" from the example context.
     </div>
 
     <!-- Controls row: learning rate + toggles -->
@@ -291,7 +291,7 @@ const lossChartOption = computed(() => ({
     <!-- Generated output evolution -->
     <div v-if="outputLog.length > 0" class="rounded-lg bg-surface-light p-4">
       <h4 class="mb-3 text-sm font-medium text-text-secondary">
-        Output evolution: "On the mat sat a ___"
+        Output evolution: "the cat ate ___"
       </h4>
       <div class="max-h-48 space-y-1 overflow-y-auto pr-2">
         <div
@@ -321,7 +321,7 @@ const lossChartOption = computed(() => ({
       </div>
       <p class="mt-2 text-xs text-text-secondary">
         Each row samples 4 tokens from the current distribution. Early on the output is random;
-        as training progresses, the model increasingly predicts "cat" for this context.
+        as training progresses, the model increasingly predicts "fish" for this context.
       </p>
     </div>
 
@@ -359,10 +359,10 @@ const lossChartOption = computed(() => ({
         v-for="(token, index) in TOKENS"
         :key="token"
         class="rounded-lg bg-surface-light p-3 text-center"
-        :class="index === TARGET_INDEX ? 'ring-1 ring-positive/40' : ''"
+        :class="index === currentTargetIndex ? 'ring-1 ring-positive/40' : ''"
       >
         <div class="font-mono font-semibold" :style="{ color: TOKEN_COLORS[index] }">{{ token }}</div>
-        <div v-if="index === TARGET_INDEX" class="text-xs text-positive">target ✓</div>
+        <div v-if="index === currentTargetIndex" class="text-xs text-positive">target ✓</div>
         <div class="mt-1 font-mono text-sm text-text-primary">{{ (currentProbs[index] * 100).toFixed(1) }}%</div>
       </div>
     </div>
@@ -371,7 +371,7 @@ const lossChartOption = computed(() => ({
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Try it:</strong>
       Click "Run 100 steps" and watch the loss curve drop sharply at first, then flatten.
-      Notice how "cat" (the target) gains probability while the others fall.
+      Notice how "fish" (the target) gains probability while the others fall.
       Then reset and try learning rate 2.0 — at high learning rates, the loss may oscillate or explode
       rather than converge. This is why choosing a good learning rate matters so much.
     </div>

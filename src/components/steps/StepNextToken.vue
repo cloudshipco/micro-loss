@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
+import { EXAMPLE_CONTEXT_VECTOR } from '../../engine/model-config'
 
-const exampleLogits = [2.0, 1.0, 0.5, 0.1]
+const exampleLogits = [0.1, 0.5, 1.0, 2.0]
 
-// Illustrative context vector values (not real — just for display)
-const contextVectorPreview = [0.82, -1.31, 0.41, 2.10, -0.63, 0.17]
+const contextVectorPreview = EXAMPLE_CONTEXT_VECTOR
 </script>
 
 <template>
@@ -13,18 +13,18 @@ const contextVectorPreview = [0.82, -1.31, 0.41, 2.10, -0.63, 0.17]
     <!-- Context vector reminder -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       At the end of the forward pass you have a <strong class="text-text-primary">context vector</strong>
-      — a long list of numbers summarising the context <em>"On the mat sat a"</em>.
-      The question now is: how do we turn that single vector into one score per vocabulary word?
+      — a long list of numbers summarising the context <em>"the cat ate"</em>.
+      The question now is: how do we turn that single vector into one score per vocabulary token?
     </div>
 
     <!-- The dot product step -->
     <div class="rounded-lg bg-surface-light p-5">
       <div class="mb-1 text-sm font-medium text-text-secondary">The vocabulary comparison</div>
       <div class="mb-4 text-xs text-text-secondary">
-        Each vocabulary word has its own learned vector — a
+        Each vocabulary token has its own learned vector — a
         <strong class="text-text-primary">vocabulary embedding</strong>.
         The model computes a <strong class="text-text-primary">dot product</strong> between the
-        context vector and each vocabulary embedding to get one score per word.
+        context vector and each vocabulary embedding to get one score per token.
       </div>
 
       <div class="flex flex-col items-center gap-4 md:flex-row md:items-start">
@@ -34,7 +34,7 @@ const contextVectorPreview = [0.82, -1.31, 0.41, 2.10, -0.63, 0.17]
           <div class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">Context vector <em>h</em></div>
           <div class="space-y-0.5 font-mono text-xs text-text-secondary">
             <div v-for="(val, i) in contextVectorPreview" :key="i">{{ val.toFixed(2) }}</div>
-            <div class="text-text-secondary opacity-50">… (768 values)</div>
+            <div class="text-text-secondary opacity-50">(8 in our micro-model; 768+ in production)</div>
           </div>
           <div class="mt-2 text-xs text-text-secondary">Summary of the context</div>
         </div>
@@ -50,7 +50,7 @@ const contextVectorPreview = [0.82, -1.31, 0.41, 2.10, -0.63, 0.17]
 
         <!-- Per-word scores -->
         <div class="flex-1">
-          <div class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">One score per word</div>
+          <div class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">One score per token</div>
           <div class="space-y-2">
             <div
               v-for="(token, i) in TOKENS"
@@ -79,9 +79,9 @@ const contextVectorPreview = [0.82, -1.31, 0.41, 2.10, -0.63, 0.17]
         the sum is large. If they point in opposite directions, the sum is small or negative.
       </p>
       <p class="mt-2">
-        Training gradually steers the context vector for <em>"On the mat sat a"</em> to
-        point in a similar direction to the vocabulary vector for "cat", and away from "dog",
-        "fish", and "bird". The dot product is the mechanism that converts that geometric
+        Training gradually steers the context vector for <em>"the cat ate"</em> to
+        point in a similar direction to the vocabulary vector for "fish", and away from "the",
+        "cat", and "ate". The dot product is the mechanism that converts that geometric
         alignment into a number.
       </p>
     </div>

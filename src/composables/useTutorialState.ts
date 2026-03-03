@@ -42,12 +42,12 @@ export interface TutorialState {
 
 const TUTORIAL_STATE_KEY: InjectionKey<TutorialState> = Symbol('tutorialState')
 
-const DEFAULT_LOGITS = [2.0, 1.0, 0.5, 0.1]
+const DEFAULT_LOGITS = [0.1, 0.5, 1.0, 2.0]
 
 export function createTutorialState(): TutorialState {
   const logits = ref([...DEFAULT_LOGITS])
   const temperature = ref(1.0)
-  const targetIndex = ref(0)
+  const targetIndex = ref(3)
   const learningRate = ref(0.5)
 
   // Softmax at temperature=1 (base)

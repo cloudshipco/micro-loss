@@ -11,7 +11,7 @@ provideTutorialState(state)
     <!-- Running example context -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Running example:</strong>
-      In our sentence <em>"On the mat sat a <strong class="text-text-primary">{{ state.tokens[state.targetIndex.value] }}</strong>"</em>,
+      In our sentence <em>"the cat ate <strong class="text-text-primary">{{ state.tokens[state.targetIndex.value] }}</strong>"</em>,
       the correct next word after "a" is
       <strong class="text-text-primary">"{{ state.tokens[state.targetIndex.value] }}"</strong>.
       Click a different token below to see how the loss changes in the next step.
@@ -45,7 +45,7 @@ provideTutorialState(state)
     <!-- Try it callout -->
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Try it:</strong>
-      Click "bird" as the target. Since the model gave "bird" the lowest probability
+      Click "the" as the target. Since the model gave "the" the lowest probability
       (because its logit was the lowest), the gap between prediction and target is now
       large. The loss in the next step will be much higher &mdash; the model is being
       punished for a bad prediction.

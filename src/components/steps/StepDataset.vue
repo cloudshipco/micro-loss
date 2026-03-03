@@ -9,12 +9,12 @@ interface TrainingExample {
 }
 
 const examples: TrainingExample[] = [
-  { context: ['On', 'the', 'mat', 'sat', 'a'], targetIndex: 0, note: '"On the mat sat a cat" — our running example' },
-  { context: ['She', 'stroked', 'the', 'purring'], targetIndex: 0, note: 'Cats purr — "cat" is a natural completion' },
-  { context: ['The', 'big', 'friendly'], targetIndex: 1, note: 'Dogs are commonly described this way' },
-  { context: ['She', 'kept', 'a', 'tropical'], targetIndex: 2, note: 'Tropical pets are often fish' },
-  { context: ['A', 'colorful', 'singing'], targetIndex: 3, note: 'Birds sing and are colorful' },
-  { context: ['The', 'hungry', 'cat', 'eyed', 'the'], targetIndex: 2, note: 'Cats famously pursue fish' },
+  { context: ['the', 'cat', 'ate'], targetIndex: 3, note: '"the cat ate fish" — our running example' },
+  { context: ['cat', 'ate', 'fish'], targetIndex: 0, note: 'The sentence loops: "…fish the cat ate fish…"' },
+  { context: ['ate', 'fish', 'the'], targetIndex: 1, note: 'Continuing the loop: "…the cat…"' },
+  { context: ['fish', 'the', 'cat'], targetIndex: 2, note: 'And again: "…cat ate…"' },
+  { context: ['the', 'cat'], targetIndex: 2, note: 'Shorter context, same pattern: "the cat ate"' },
+  { context: ['ate', 'fish'], targetIndex: 0, note: '"ate fish the" — predicting the article' },
 ]
 
 const currentIndex = ref(0)
@@ -38,10 +38,9 @@ function next() {
   <div class="space-y-6">
     <!-- What a language model does -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">The task:</strong>
-      A language model is trained to predict the next token in a sequence. Given a context of tokens,
-      it must output a probability for every word in its vocabulary. Training consists of millions of
-      examples, each one asking: <em>"given this context, what comes next?"</em>
+      <strong class="text-text-primary">The goal: predict the next word.</strong>
+      Given a sequence of words (the context), what comes next?
+      Training data provides millions of examples with known answers.
     </div>
 
     <!-- Training example card -->
@@ -133,7 +132,7 @@ function next() {
     <!-- Scale note -->
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Simplified vocabulary:</strong>
-      We're using just 4 tokens (cat, dog, fish, bird) throughout this tutorial for visual clarity.
+      We're using just 4 tokens (the, cat, ate, fish) throughout this tutorial for visual clarity.
       Real models like GPT-4 have vocabularies of <strong class="text-text-primary">~100,000 tokens</strong>
       — words, word-pieces, punctuation, and special characters. The math is identical; only the scale differs.
     </div>

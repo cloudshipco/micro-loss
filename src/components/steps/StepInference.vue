@@ -4,12 +4,12 @@ import { computeSoftmax } from '../../engine/softmax'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import BarChart from '../charts/BarChart.vue'
 
-// Logits representing a well-trained model — cat strongly preferred
-const baseLogits = [3.5, 0.8, 0.4, 0.1]
+// Logits representing a well-trained model — fish strongly preferred
+const baseLogits = [0.1, 0.4, 0.8, 3.5]
 const temperature = ref(1.0)
 
 // Start with a seed context
-const seedContext = ['On', 'the', 'mat', 'sat', 'a']
+const seedContext = ['the', 'cat', 'ate']
 const generatedTokens = ref<number[]>([])
 const lastSampledIndex = ref<number | null>(null)
 const isAnimating = ref(false)
@@ -190,15 +190,11 @@ function getLossColor(p: number): string {
     <div class="rounded-lg bg-surface-light p-4 text-sm text-text-secondary">
       <strong class="text-text-primary">Sampling vs. argmax:</strong>
       <p class="mt-2">
-        At low temperature, the model nearly always picks "cat" (highest probability). Always
+        At low temperature, the model nearly always picks "fish" (highest probability). Always
         picking the single most likely token is called <strong>greedy decoding</strong> — "greedy"
         because it takes the locally best choice at every step without considering what comes
         next. It's predictable but can produce repetitive text. At higher temperatures,
         lower-probability tokens get a real chance to be sampled, making the output more varied.
-      </p>
-      <p class="mt-2">
-        When you send a message to ChatGPT or Claude, this exact process runs for every token
-        in the reply — often hundreds of steps to generate a full response.
       </p>
     </div>
 

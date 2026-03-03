@@ -6,9 +6,9 @@ import { PARAMETER_GROUPS, TOTAL_PARAMETERS, SCALE_COMPARISONS, MODEL_CONFIG, ra
 const trained = ref(false)
 
 // Untrained: arbitrary numbers that happen to look random
-// Trained: our running example values where cat wins
+// Trained: our running example values where fish wins
 const untrainedScores = [1.3, -0.7, 2.1, -1.4]
-const trainedScores   = [2.0,  1.0, 0.5,  0.1]
+const trainedScores   = [0.1,  0.5, 1.0,  2.0]
 
 const scores = computed(() => trained.value ? trainedScores : untrainedScores)
 
@@ -59,9 +59,9 @@ function formatParam(n: number): string {
         <!-- Input side -->
         <div class="flex-1 rounded-lg border border-surface-lighter bg-surface p-4">
           <div class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">Input</div>
-          <div class="text-xs text-text-secondary mb-3">A sequence of token IDs</div>
+          <div class="text-xs text-text-secondary mb-3">A sequence of tokens (as integer IDs)</div>
           <div class="flex flex-wrap gap-1.5">
-            <span v-for="word in ['On', 'the', 'mat', 'sat', 'a']" :key="word"
+            <span v-for="word in ['the', 'cat', 'ate']" :key="word"
               class="rounded bg-surface-light px-2 py-1 font-mono text-sm text-text-primary">
               {{ word }}
             </span>
@@ -90,7 +90,7 @@ function formatParam(n: number): string {
         <!-- Output side -->
         <div class="flex-1 rounded-lg border border-surface-lighter bg-surface p-4">
           <div class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">Output</div>
-          <div class="text-xs text-text-secondary mb-3">One score per vocabulary word</div>
+          <div class="text-xs text-text-secondary mb-3">One score per vocabulary token</div>
           <div class="space-y-1.5">
             <div v-for="(token, i) in TOKENS" :key="token"
               class="flex items-center gap-2 text-sm font-mono">
@@ -141,13 +141,13 @@ function formatParam(n: number): string {
       <p class="mt-3 text-xs text-text-secondary">
         <span v-if="!trained">
           The model hasn't learned anything yet. The scores are essentially arbitrary —
-          fish scores highest even though "cat" is the correct answer. This is what a
+          "ate" scores highest even though "fish" is the correct answer. This is what a
           freshly initialised model looks like.
         </span>
         <span v-else>
-          After many training steps, the scores reflect the context. "Cat" now scores
-          highest for <em>"On the mat sat a ___"</em>. The model has learned a useful
-          pattern — not because it was programmed to, but because gradient descent adjusted
+          After many training steps, the scores reflect the context. "Fish" now scores
+          highest for <em>"the cat ate ___"</em>. The model has learned a useful
+          pattern — not because it was programmed to, but because the training process adjusted
           the parameters until it got better at predicting correctly.
         </span>
       </p>
@@ -159,7 +159,7 @@ function formatParam(n: number): string {
       Concretely, a parameter is a single floating-point number — something like
       <span class="font-mono text-brand-light">0.3471</span> — stored in memory.
       The model contains billions of these numbers organised into matrices.
-      During the forward pass, those matrices multiply and add with the input data
+      When the model runs, those matrices multiply and add with the input data
       to produce the output scores. During training, each parameter is nudged up or
       down by a tiny amount. That nudging, applied billions of times across billions
       of parameters, is what produces a model that can write coherent text.
@@ -167,9 +167,15 @@ function formatParam(n: number): string {
 
     <!-- Parameter inventory table -->
     <div class="rounded-lg bg-surface-light p-4">
-      <h4 class="mb-3 text-sm font-medium text-text-secondary">
+      <h4 class="mb-2 text-sm font-medium text-text-secondary">
         Parameter inventory for our micro-model
       </h4>
+      <p class="mb-3 text-xs text-text-secondary">
+        Two numbers drive every dimension:
+        <strong class="text-text-primary">{{ MODEL_CONFIG.vocabSize }}</strong> (vocabulary size — one slot per token) and
+        <strong class="text-text-primary">{{ MODEL_CONFIG.nEmbed }}</strong> (embedding dimension — how many numbers represent each token internally).
+        Real models use ~100k and ~4096+; the maths is identical.
+      </p>
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
@@ -206,6 +212,15 @@ function formatParam(n: number): string {
           </tbody>
         </table>
       </div>
+    </div>
+
+    <!-- Embedding dimension explainer -->
+    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
+      <strong class="text-text-primary">Why 8 dimensions?</strong>
+      The <strong class="text-text-primary">embedding dimension</strong> controls how many numbers represent each token internally. Think of it as the richness of each token's description: with 2 numbers you could only encode basic properties (say, "noun vs verb" and "common vs rare"); with 8 numbers the model can encode richer relationships. Our choice of 8 is the smallest value that keeps the maths meaningful while fitting neatly in a visual table.
+      <p class="mt-2">
+        A larger embedding dimension gives the model more capacity — more room to encode nuanced distinctions between tokens — but at a cost. Attention matrices are <em>embedding dimension × embedding dimension</em>, so doubling the dimension roughly quadruples the attention parameters. Real models balance expressiveness against compute: GPT-2 uses 768, GPT-3 uses 12,288, and GPT-4 is estimated at ~16,000.
+      </p>
     </div>
 
     <!-- Scale comparison -->
@@ -289,8 +304,8 @@ function formatParam(n: number): string {
       </div>
 
       <p class="mt-3 text-xs text-text-secondary">
-        Each cell is one parameter — a random number drawn from a Gaussian distribution
-        with standard deviation 0.02. Click "Reinitialize" to see a fresh set.
+        Each cell is one parameter — a small random number (drawn from a bell-curve distribution
+        centered on zero, with most values between −0.04 and +0.04). Click "Reinitialize" to see a fresh set.
         Before training, these numbers are meaningless. After training, each row encodes
         what the model has learned about that token's "meaning."
       </p>

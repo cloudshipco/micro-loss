@@ -34,7 +34,7 @@ const topTwoRatio = computed(() => {
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
       <strong class="text-brand-light">Running example:</strong>
       <span class="text-text-secondary">
-        The model produced scores for <em>"On the mat sat a ___"</em>:
+        The model produced scores for <em>"the cat ate ___"</em>:
       </span>
       <span
         v-for="(token, index) in state.tokens"
@@ -85,7 +85,7 @@ const topTwoRatio = computed(() => {
     <!-- Try it callout -->
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Try it:</strong>
-      Drag "cat"'s logit down below "dog"'s and watch the ratio flip. Then try setting
+      Drag "fish"'s logit down below "ate"'s and watch the ratio flip. Then try setting
       all four logits to the same value &mdash; the ratio becomes 1.0&times; (equally likely).
       You can also drag logits into negative territory &mdash; that's valid too. Only
       the <em>differences</em> between logits matter, not whether they're positive or negative.

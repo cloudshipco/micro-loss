@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 
-const sentence = ['On', 'the', 'mat', 'sat', 'a', null]
+const sentence = ['the', 'cat', 'ate', null]
 
 const pipeline = [
   { label: 'Dataset' },
@@ -10,7 +10,7 @@ const pipeline = [
   { label: 'Logits' },
   { label: 'Softmax' },
   { label: 'Loss' },
-  { label: 'Backprop' },
+  { label: 'Backpropagation' },
   { label: 'Gradient' },
   { label: 'Adam' },
   { label: 'Training loop' },
@@ -69,7 +69,7 @@ const pipeline = [
         <strong class="text-text-primary">This tutorial covers:</strong>
         <span class="text-text-secondary">
           the complete training pipeline — dataset, tokenization, forward pass, softmax,
-          cross-entropy loss, backpropagation, gradients, the Adam optimizer, and autoregressive
+          cross-entropy loss, backpropagation, gradients, the Adam optimizer, and step-by-step
           text generation. No prior machine learning knowledge needed.
         </span>
       </div>
@@ -78,8 +78,8 @@ const pipeline = [
         <strong class="text-text-primary">This tutorial does not cover:</strong>
         <span class="text-text-secondary">
           the internals of the transformer — embeddings, multi-head attention layers, positional
-          encoding, or residual connections. We treat the model as a black box that outputs logits,
-          and explain what happens to those logits from there.
+          encoding, or residual connections. We treat the model as a black box that outputs
+          raw scores, and explain what happens to those scores from there.
         </span>
       </div>
 

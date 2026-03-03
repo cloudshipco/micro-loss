@@ -8,8 +8,8 @@ import { initAdam, adamStep, DEFAULT_ADAM_CONFIG } from '../../engine/adam'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import BarChart from '../charts/BarChart.vue'
 
-const DEFAULT_LOGITS = [2.0, 1.0, 0.5, 0.1]
-const TARGET_INDEX = 0 // cat
+const DEFAULT_LOGITS = [0.1, 0.5, 1.0, 2.0]
+const TARGET_INDEX = 3 // fish
 
 // SGD state
 const sgdLogits = ref([...DEFAULT_LOGITS])

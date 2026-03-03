@@ -111,7 +111,7 @@ export class Value {
  * Returns all intermediate Values so the tutorial can animate each node.
  */
 export interface SoftmaxCEGraph {
-  logits: Value[]            // z_cat, z_dog, z_fish, z_bird
+  logits: Value[]            // z_the, z_cat, z_ate, z_fish
   exps: Value[]              // e^z_i
   sumExp: Value              // Σ e^z_j
   probs: Value[]             // p_i = e^z_i / Σ

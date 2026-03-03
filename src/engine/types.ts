@@ -20,7 +20,7 @@ export interface UpdateResult {
   delta: number[]
 }
 
-export const TOKENS = ['cat', 'dog', 'fish', 'bird'] as const
+export const TOKENS = ['the', 'cat', 'ate', 'fish'] as const
 export type Token = (typeof TOKENS)[number]
 
-export const TOKEN_COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'] as const
+export const TOKEN_COLORS = ['#f59e0b', '#6366f1', '#ef4444', '#10b981'] as const

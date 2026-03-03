@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import { useComputationGraph } from '../../composables/useComputationGraph'
 import { TOKEN_COLORS } from '../../engine/types'
 
-const DEFAULT_LOGITS = [2.0, 1.0, 0.5, 0.1]
-const TARGET_INDEX = 0 // cat
+const DEFAULT_LOGITS = [0.1, 0.5, 1.0, 2.0]
+const TARGET_INDEX = 3 // fish
 
 const {
   mode,
@@ -54,13 +54,13 @@ const chainRuleRows = computed(() => {
 
 function nodeColor(node: { highlighted: boolean; gradHighlighted: boolean }): string {
   if (node.gradHighlighted) return '#f59e0b'
-  if (node.highlighted) return TOKEN_COLORS[0]
+  if (node.highlighted) return TOKEN_COLORS[TARGET_INDEX]
   return '#4a4660'
 }
 
 function edgeColor(edge: { highlighted: boolean; gradHighlighted: boolean }): string {
   if (edge.gradHighlighted) return '#f59e0b'
-  if (edge.highlighted) return TOKEN_COLORS[0] + '80'
+  if (edge.highlighted) return TOKEN_COLORS[TARGET_INDEX] + '80'
   return '#363254'
 }
 
@@ -88,12 +88,12 @@ function getEdgePath(edge: { from: string; to: string }): string {
         <h4 class="text-sm font-medium text-text-secondary">
           Computation graph
           <span class="ml-2 text-xs text-text-secondary/60">
-            (target token: <span class="font-bold" :style="{ color: TOKEN_COLORS[0] }">cat</span>)
+            (target token: <span class="font-bold" :style="{ color: TOKEN_COLORS[3] }">fish</span>)
           </span>
         </h4>
         <div class="flex items-center gap-2 text-xs text-text-secondary">
           <span class="flex items-center gap-1">
-            <span class="inline-block h-2 w-4 rounded" :style="{ backgroundColor: TOKEN_COLORS[0] }" />
+            <span class="inline-block h-2 w-4 rounded" :style="{ backgroundColor: TOKEN_COLORS[TARGET_INDEX] }" />
             forward
           </span>
           <span class="flex items-center gap-1">
@@ -285,19 +285,19 @@ function getEdgePath(edge: { from: string; to: string }): string {
       <div class="overflow-x-auto">
         <svg viewBox="0 0 400 160" class="mx-auto w-full max-w-md" style="max-height: 160px">
           <!-- z node -->
-          <rect x="20" y="55" width="60" height="40" rx="6" fill="#6366f120" stroke="#6366f1" stroke-width="1.5" />
-          <text x="50" y="78" text-anchor="middle" fill="#6366f1" font-size="12" font-weight="600">z_cat</text>
+          <rect x="20" y="55" width="60" height="40" rx="6" fill="#10b98120" stroke="#10b981" stroke-width="1.5" />
+          <text x="50" y="78" text-anchor="middle" fill="#10b981" font-size="12" font-weight="600">z_fish</text>
 
           <!-- Path 1: via exp -->
-          <path d="M 80 65 C 120 65, 140 40, 170 40" fill="none" stroke="#6366f180" stroke-width="1.5" />
-          <rect x="170" y="20" width="70" height="40" rx="6" fill="#6366f120" stroke="#6366f1" stroke-width="1" />
-          <text x="205" y="44" text-anchor="middle" fill="#6366f1" font-size="11">e^(z_cat)</text>
+          <path d="M 80 65 C 120 65, 140 40, 170 40" fill="none" stroke="#10b98180" stroke-width="1.5" />
+          <rect x="170" y="20" width="70" height="40" rx="6" fill="#10b98120" stroke="#10b981" stroke-width="1" />
+          <text x="205" y="44" text-anchor="middle" fill="#10b981" font-size="11">e^(z_fish)</text>
           <text x="205" y="76" text-anchor="middle" fill="#f59e0b" font-size="10">∂L/∂exp</text>
 
           <!-- Path 2: via sum -->
-          <path d="M 80 85 C 120 85, 140 110, 170 110" fill="none" stroke="#6366f180" stroke-width="1.5" />
-          <rect x="170" y="90" width="70" height="40" rx="6" fill="#6366f120" stroke="#6366f1" stroke-width="1" />
-          <text x="205" y="114" text-anchor="middle" fill="#6366f1" font-size="11">Σe^z</text>
+          <path d="M 80 85 C 120 85, 140 110, 170 110" fill="none" stroke="#10b98180" stroke-width="1.5" />
+          <rect x="170" y="90" width="70" height="40" rx="6" fill="#10b98120" stroke="#10b981" stroke-width="1" />
+          <text x="205" y="114" text-anchor="middle" fill="#10b981" font-size="11">Σe^z</text>
           <text x="205" y="146" text-anchor="middle" fill="#f59e0b" font-size="10">∂L/∂sum</text>
 
           <!-- Sum symbol -->
@@ -316,7 +316,7 @@ function getEdgePath(edge: { from: string; to: string }): string {
       </div>
 
       <p class="mt-3 text-xs text-text-secondary">
-        This is why automatic differentiation systems track the full graph, not just a single path.
+        This is why backpropagation implementations track the full graph, not just a single path.
         Every connection contributes to the final gradient.
       </p>
     </div>
