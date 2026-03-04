@@ -82,7 +82,10 @@ const pipeline = [
           Inspired by Andrej Karpathy's
           <a href="https://karpathy.github.io/2026/02/12/microgpt/" target="_blank" rel="noopener noreferrer"
             class="text-brand-light hover:underline">MicroGPT</a>
-          — a complete GPT in 200 lines of Python.
+          — a complete GPT in 200 lines of Python — and
+          <a href="https://growingswe.com/blog/microgpt" target="_blank" rel="noopener noreferrer"
+            class="text-brand-light hover:underline">Growing SWE's interactive visualisation</a>
+          of it.
       </Callout>
     </div>
 
