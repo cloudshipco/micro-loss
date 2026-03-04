@@ -28,7 +28,7 @@ export const steps: StepDefinition[] = [
   // ── STEPS 1–2: data ───────────────────────────────────────────────────
   {
     number: 1,
-    title: 'The Dataset',
+    title: 'Dataset',
     subtitle: 'The prediction task and training data',
     description: `<p>The goal of language modelling is to predict the next word. Given a sequence of words — <em>"the cat ate _"</em> — what comes next? To learn this, we need training data: billions of pages from the internet, books, and other sources. Each passage provides many examples of the pattern: a sequence of words followed by a known continuation. A <strong>token</strong> is the technical term for a word or word-fragment — the smallest unit the system works with.</p>
 <p>We're using a simplified vocabulary of just four tokens: <strong>the</strong>, <strong>cat</strong>, <strong>ate</strong>, and <strong>fish</strong>. Real systems like GPT-4 use ~100,000 tokens covering whole words, fragments of longer words, punctuation, and special characters. The math is identical; only the scale differs.</p>
@@ -36,7 +36,7 @@ export const steps: StepDefinition[] = [
   },
   {
     number: 2,
-    title: 'Tokenization',
+    title: 'Tokens',
     subtitle: 'Representing text as numbers',
     description: `<p>Models can't read text — they work with numbers. Before training, every piece of text is split into <strong>tokens</strong> — whole words, fragments of longer words, or punctuation characters drawn from the vocabulary. Each token is then mapped to a unique integer ID.</p>
 <p>Our tiny vocabulary maps four tokens to integer IDs: the&nbsp;→&nbsp;0, cat&nbsp;→&nbsp;1, ate&nbsp;→&nbsp;2, fish&nbsp;→&nbsp;3. These integers are arbitrary identifiers — "cat" being 1 doesn't mean it's "less than" "ate" at 2. The numbers are just distinct labels used to look up each token's data in a table. The same mapping is used everywhere: to encode training data and to decode output back into words.</p>`,
@@ -45,7 +45,7 @@ export const steps: StepDefinition[] = [
   // ── STEPS 3–5: the model and forward pass ────────────────────────────
   {
     number: 3,
-    title: 'The Model',
+    title: 'Model',
     subtitle: 'A function with learnable parameters',
     description: `<p>A <strong>model</strong> is a program that maps inputs to outputs. Ours takes a sequence of token IDs and produces one <strong>score</strong> per vocabulary token — a single number measuring how strongly the model associates the current context with that token as the next one. A high score for "fish" means the model currently rates "fish" as a likely continuation; a low score means it rates "fish" as unlikely. Initially those scores are arbitrary — the model starts with random internal numbers. Training gradually adjusts those numbers until the scores become useful predictions.</p>
 <p>Those adjustable numbers are called <strong>parameters</strong> — concretely, each one is a single floating-point number like <code>0.3471</code> stored in memory. A modern language model has billions of them, organised into <strong>matrices</strong> (rectangular grids of numbers). When the model runs, those matrices multiply and add with the input data in sequence to produce the output scores. During training, each parameter is nudged up or down by a tiny amount to make the model's predictions better.</p>
@@ -53,7 +53,7 @@ export const steps: StepDefinition[] = [
   },
   {
     number: 4,
-    title: 'The Forward Pass',
+    title: 'Forward Pass',
     subtitle: 'Running the model once',
     description: `<p>Running the model once is called a <strong>forward pass</strong>. The input is a <strong>context</strong> — the sequence of tokens seen so far, each represented as an integer token ID (e.g. <em>[0, 1, 2]</em> for "the cat ate"). The output is one <strong>score</strong> per vocabulary token: a number indicating how strongly the model rates that token as the likely next word. A high score for "fish" means the model currently considers "fish" a likely continuation of this context.</p>
 <p>A single piece of training text yields multiple forward passes. For example, from the sentence "the cat ate fish", the model trains on three contexts: ["the"] → cat, ["the", "cat"] → ate, ["the", "cat", "ate"] → fish — one prediction task for each position after the first.</p>
@@ -77,7 +77,7 @@ for each token in vocabulary:
   },
   {
     number: 5,
-    title: 'From Context to Scores',
+    title: 'Context to Scores',
     subtitle: 'The dot product that produces logits',
     description: `<p>The context vector is not the final output. It still needs to be compared against every vocabulary token to produce one score per token. This comparison is the precise handoff point between the transformer's internals and the rest of this tutorial.</p>
 <p>Each vocabulary token also has a learned vector — a <strong>vocabulary embedding</strong>. The model computes the <strong>dot product</strong> between the context vector and each vocabulary embedding. A dot product multiplies each pair of corresponding numbers from two vectors and sums the results: a single number that measures how aligned — how similar in direction — the two vectors are.</p>
@@ -111,7 +111,7 @@ for each token in vocabulary:
   },
   {
     number: 8,
-    title: 'Normalization',
+    title: 'Softmax',
     subtitle: 'Softmax produces a probability distribution',
     description: `<p>A valid probability distribution needs two properties: <strong>(1) every value is non-negative</strong>, and <strong>(2) they all sum to 1</strong>. After exponentiation we have property (1). To get property (2), we simply divide each exponentiated value by the total.</p>
 <p>This two-step process — exponentiate then normalize — is called <strong>softmax</strong>. It's "soft" because it approximates the "hard" maximum: taking the single highest-scoring token and giving it 100% (called <strong>argmax</strong> — the argument that maximises the score). Instead of that winner-takes-all approach, softmax spreads probability across all tokens but concentrates most of it on the highest logit. The model's raw preference becomes a clean percentage — 50.6% for <em>fish</em> as the next token.</p>
@@ -159,7 +159,7 @@ ${math('-\\log(0.5) = \\ln(2) \\approx 0.693')}
   },
   {
     number: 11,
-    title: 'Loss in Logit Form',
+    title: 'Loss as Logits',
     subtitle: 'Two competing forces',
     description: `<p>Let's substitute the softmax formula into the loss and simplify. Since ${imath('p_y = e^{z_y} / \\sum e^{z_j}')}, taking ${imath('-\\log')} of both sides and simplifying reveals the loss as a tug-of-war between two forces:</p>
 <ol>
@@ -184,7 +184,7 @@ ${math('-\\log(0.5) = \\ln(2) \\approx 0.693')}
   // ── STEPS 13–14: gradient and update ──────────────────────────────────
   {
     number: 13,
-    title: 'The Gradient',
+    title: 'Gradient',
     subtitle: 'The elegant p − y',
     description: `<p>In the previous step you saw how backpropagation walks backward through the computation, multiplying local derivatives via the chain rule. When we apply this to our cross-entropy loss with softmax, the algebra simplifies to a remarkably clean result — the gradient for each token is simply its predicted probability minus its target value. Unpack what this means:</p>
 <ul>
@@ -195,7 +195,7 @@ ${math('-\\log(0.5) = \\ln(2) \\approx 0.693')}
   },
   {
     number: 14,
-    title: 'Gradient Descent Update',
+    title: 'Gradient Descent',
     subtitle: 'Watch the logits shift',
     description: `<p>Now we apply the gradient to actually improve the logits:</p>
 ${pseudocode(`gradient = predicted - target
@@ -210,7 +210,7 @@ for each token i:
   // ── STEP 15: Adam optimizer (NEW) ──────────────────────────────────────
   {
     number: 15,
-    title: 'Adam Optimizer',
+    title: 'Adam',
     subtitle: 'Momentum + adaptive learning rates',
     description: `<p>Basic gradient descent uses the same fixed learning rate for every parameter at every step. In practice, this is too crude: some parameters need large steps and others need tiny ones, and noisy gradients cause zig-zagging.</p>
 <p><strong>Adam</strong> (Adaptive Moment Estimation) fixes both problems. It maintains two running averages for each parameter: (1) the <strong>momentum</strong> — an exponentially weighted average of past gradients, which smooths out noise and maintains direction, and (2) the <strong>second moment</strong> — an average of squared gradients, which measures how large gradients typically are for this parameter.</p>
@@ -244,7 +244,7 @@ for each token i:
   },
   {
     number: 18,
-    title: 'Attention Connection',
+    title: 'Attention',
     subtitle: 'Softmax in the attention mechanism',
     description: `<p>You've now seen the full pipeline: logits → softmax → loss → gradient → update. But softmax plays <em>another</em> crucial role in modern neural networks — inside the <strong>attention mechanism</strong>.</p>
 <p>In attention, each word computes a <strong>query</strong> ("what am I looking for?") and every word offers a <strong>key</strong> ("here's what I contain"). Their <strong>dot product</strong> ${imath('Q \\cdot K')} — the sum of element-wise multiplications of two vectors, a standard measure of similarity — produces a single score per pair. These scores play the same mathematical role as logits — raw unbounded values that softmax converts into a distribution.</p>
@@ -273,7 +273,7 @@ for each token i:
   // ── STEPS 21–22: bridging to real world ────────────────────────────
   {
     number: 21,
-    title: 'The Real Thing',
+    title: 'Real-World Scale',
     subtitle: 'From toy model to production LLMs',
     description: `<p>Everything you've traced — softmax, cross-entropy, backpropagation, gradient descent, Adam — is exactly what powers real language models. ChatGPT, Claude, Gemini, and every other LLM use the identical training algorithm. The only differences are <strong>scale</strong> and <strong>engineering</strong>.</p>
 <p>The model you just trained has 268 parameters and learned from 3 examples. GPT-4 has an estimated <em>trillion+</em> parameters trained on <em>trillions</em> of tokens. The architecture is structurally the same — the same matrix operations, the same softmax, the same cross-entropy loss — just with dramatically larger dimensions.</p>

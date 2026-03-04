@@ -42,9 +42,9 @@ const pipeline = [
     <!-- Explanation -->
     <div class="mx-auto max-w-2xl space-y-4 text-center leading-relaxed text-text-secondary">
       <p>
-        A language model is trained to predict the next word in a sequence. We'll trace the complete
-        journey: from raw training data all the way to generating new text — using a toy vocabulary
-        of just <strong class="text-text-primary">4 tokens</strong> (words or word-fragments — the smallest units the model works with):
+        A language model is trained to predict the next word in a sequence. We'll trace the journey
+        from raw scores to generated text — using a toy vocabulary
+        of just <strong class="text-text-primary">4 tokens</strong>:
       </p>
     </div>
 
@@ -90,7 +90,7 @@ const pipeline = [
     </div>
 
     <!-- Pipeline preview -->
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-1.5 text-xs font-medium">
+    <div class="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-1.5 text-xs font-medium">
       <template v-for="(stage, i) in pipeline" :key="stage.label">
         <span class="rounded-md bg-surface-light px-2.5 py-1.5 text-text-secondary">
           {{ stage.label }}
