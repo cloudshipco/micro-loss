@@ -24,6 +24,7 @@ import Step09Temperature from './components/steps/Step09Temperature.vue'
 import Step10Attention from './components/steps/Step10Attention.vue'
 import StepInference from './components/steps/StepInference.vue'
 import StepWatchItLearn from './components/steps/StepWatchItLearn.vue'
+import StepPracticalTraining from './components/steps/StepPracticalTraining.vue'
 import StepRealThing from './components/steps/StepRealThing.vue'
 import StepFurtherReading from './components/steps/StepFurtherReading.vue'
 
@@ -47,9 +48,10 @@ const stepComponents = [
   Step09Temperature,   // Step 17: Temperature
   Step10Attention,     // Step 18: Attention Connection
   StepInference,       // Step 19: Inference
-  StepWatchItLearn,    // Step 20: Watch It Learn (NEW)
-  StepRealThing,       // Step 21: The Real Thing
-  StepFurtherReading,  // Step 22: Further Reading
+  StepWatchItLearn,       // Step 20: Watch It Learn
+  StepPracticalTraining,  // Step 21: Practical Training
+  StepRealThing,          // Step 22: Real-World Scale
+  StepFurtherReading,     // Step 23: Further Reading
 ]
 </script>
 

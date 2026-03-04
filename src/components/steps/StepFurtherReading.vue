@@ -1,5 +1,31 @@
 <script setup lang="ts">
+import katex from 'katex'
 import Callout from '../ui/Callout.vue'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
+const kd = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: true })
+
+const pipeline = [
+  { label: 'Dataset', step: 1 },
+  { label: 'Tokens', step: 2 },
+  { label: 'Forward pass', step: 4 },
+  { label: 'Logits', step: 6 },
+  { label: 'Softmax', step: 8 },
+  { label: 'Loss', step: 10 },
+  { label: 'Backprop', step: 12 },
+  { label: 'Gradient', step: 13 },
+  { label: 'Update', step: 14 },
+  { label: 'Training loop', step: 16 },
+  { label: 'Inference', step: 19 },
+]
+
+const formulas = [
+  { name: 'Softmax', latex: 'p_i = \\frac{e^{z_i}}{\\sum_j e^{z_j}}' },
+  { name: 'Cross-entropy', latex: 'L = -\\log(p_{\\text{target}})' },
+  { name: 'Gradient', latex: '\\nabla L = p - y' },
+  { name: 'Update rule', latex: 'z \\leftarrow z - \\eta \\nabla L' },
+  { name: 'Adam', latex: 'z \\leftarrow z - \\eta \\cdot \\frac{m}{\\sqrt{v} + \\epsilon}' },
+]
 
 const resources = [
   {
@@ -85,8 +111,50 @@ const resources = [
 <template>
   <div class="space-y-6">
 
+    <!-- Cheat Sheet -->
+    <div class="rounded-lg border border-brand/30 bg-brand/5 p-5">
+      <h3 class="mb-4 text-base font-semibold text-brand-light">Cheat Sheet</h3>
+
+      <!-- Pipeline diagram -->
+      <div class="mb-5">
+        <h4 class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">The pipeline</h4>
+        <div class="flex flex-wrap items-center gap-1.5 text-xs font-medium">
+          <template v-for="(stage, i) in pipeline" :key="stage.label">
+            <span class="rounded-md bg-surface-light px-2 py-1 text-text-secondary">
+              {{ stage.label }}
+            </span>
+            <span v-if="i < pipeline.length - 1" class="text-surface-lighter">&rarr;</span>
+          </template>
+        </div>
+      </div>
+
+      <!-- 5 key formulas -->
+      <div class="mb-5">
+        <h4 class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">Key formulas</h4>
+        <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            v-for="f in formulas"
+            :key="f.name"
+            class="rounded-lg bg-surface-light px-3 py-2"
+          >
+            <div class="text-xs font-medium text-text-secondary mb-1">{{ f.name }}</div>
+            <div v-html="kd(f.latex)" class="text-sm"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 takeaways -->
+      <div>
+        <h4 class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">If you remember 3 things...</h4>
+        <ol class="space-y-1.5 text-sm text-text-secondary list-decimal list-inside">
+          <li><strong class="text-text-primary">Softmax converts raw scores to probabilities</strong> — exponentiate then normalise. Raising one token's score lowers all others.</li>
+          <li><strong class="text-text-primary">Cross-entropy loss measures prediction quality</strong> — <span v-html="km('-\\log(p)')"></span> penalises wrong confidence far more steeply than simple error metrics.</li>
+          <li><strong class="text-text-primary">Backpropagation computes the gradient <span v-html="km('p - y')"></span></strong> — prediction minus truth — then gradient descent subtracts it to improve the model.</li>
+        </ol>
+      </div>
+    </div>
+
     <p class="text-sm text-text-secondary">
-      This tutorial covered the training pipeline: how a model learns from prediction errors.
       To go deeper into the architecture (what happens inside the black box), the resources
       below are excellent next steps.
     </p>

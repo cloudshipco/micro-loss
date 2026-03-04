@@ -14,7 +14,7 @@ const comparisons = [
     dimension: 'Parameters',
     ours: `${ToyModel.PARAM_COUNT}`,
     production: 'Hundreds of billions to trillions',
-    detail: 'GPT-3 has 175 billion. GPT-4 is estimated at over a trillion. The architecture uses the same types of operations — embeddings, matrix multiplications, nonlinearities — just with vastly larger dimensions. Each attention head, embedding vector, and MLP (multilayer perceptron — the feedforward network inside each transformer layer) is wider and deeper.',
+    detail: 'GPT-3 has 175 billion. GPT-4 is estimated to have hundreds of billions to over a trillion — exact figures are not public. The architecture uses the same types of operations — embeddings, matrix multiplications, nonlinearities — just with vastly larger dimensions. Each attention head, embedding vector, and MLP (multilayer perceptron — the feedforward network inside each transformer layer) is wider and deeper.',
   },
   {
     dimension: 'Training data',

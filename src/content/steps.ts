@@ -49,7 +49,7 @@ export const steps: StepDefinition[] = [
     subtitle: 'A function with learnable parameters',
     description: `<p>A <strong>model</strong> is a program that maps inputs to outputs. Ours takes a sequence of token IDs and produces one <strong>score</strong> per vocabulary token — a single number measuring how strongly the model associates the current context with that token as the next one. A high score for "fish" means the model currently rates "fish" as a likely continuation; a low score means it rates "fish" as unlikely. Initially those scores are arbitrary — the model starts with random internal numbers. Training gradually adjusts those numbers until the scores become useful predictions.</p>
 <p>Those adjustable numbers are called <strong>parameters</strong> — concretely, each one is a single floating-point number like <code>0.3471</code> stored in memory. A modern language model has billions of them, organised into <strong>matrices</strong> (rectangular grids of numbers). When the model runs, those matrices multiply and add with the input data in sequence to produce the output scores. During training, each parameter is nudged up or down by a tiny amount to make the model's predictions better.</p>
-<p>The particular arrangement of matrix operations used by GPT-style models is called a <strong>transformer</strong>, introduced in the 2017 paper <em>"Attention Is All You Need"</em> (Vaswani et al.). Unlike earlier designs that had to process tokens sequentially (one at a time), the transformer's structure allows parallel computation: calculations for different positions in the input are largely independent, so modern hardware (GPUs) can run them simultaneously — which is a large part of why training large models is feasible at all.</p>`,
+<p>The particular arrangement of matrix operations used by GPT-style models is called a <strong>transformer</strong>, introduced in the 2017 paper <em>"Attention Is All You Need"</em> (Vaswani et al.).</p>`,
   },
   {
     number: 4,
@@ -91,7 +91,6 @@ for each token in vocabulary:
     subtitle: "The model's current estimate of context–token compatibility",
     description: `<p>In Step 5 you saw how logits are produced: a dot product between the context vector and each vocabulary token's learned vector. Each logit measures how strongly the model currently associates the context with a particular next token.</p>
 <p>The word "currently" matters. At the start of training the parameters are random, so the logits are initially noise. A logit is the model's <em>best current estimate</em> of compatibility — not an inherently correct measurement. Training adjusts the parameters so those estimates get better over time.</p>
-<p>The name comes from statistics: the <strong>logit function</strong> (coined by Joseph Berkson in 1944) maps a probability to an unbounded real number via log(p/(1−p)) — the logarithm of the odds. In neural networks, "logits" refers to unbounded scores before any normalisation into probabilities. They live in that same unconstrained space: any real number, positive or negative.</p>
 <p>A logit of 2.0 for "fish" doesn't mean "twice as likely" as 1.0 for "ate" — the numbers live in <em>log-space</em>, so what matters is the <em>difference</em>. A difference of 1 means roughly 2.7× more likely (Step 7 explains why). And only relative differences matter: adding +100 to every logit wouldn't change the prediction at all.</p>`,
   },
   {
@@ -115,6 +114,7 @@ for each token in vocabulary:
     subtitle: 'Softmax produces a probability distribution',
     description: `<p>A valid probability distribution needs two properties: <strong>(1) every value is non-negative</strong>, and <strong>(2) they all sum to 1</strong>. After exponentiation we have property (1). To get property (2), we simply divide each exponentiated value by the total.</p>
 <p>This two-step process — exponentiate then normalize — is called <strong>softmax</strong>. It's "soft" because it approximates the "hard" maximum: taking the single highest-scoring token and giving it 100% (called <strong>argmax</strong> — the argument that maximises the score). Instead of that winner-takes-all approach, softmax spreads probability across all tokens but concentrates most of it on the highest logit. The model's raw preference becomes a clean percentage — 50.6% for <em>fish</em> as the next token.</p>
+<p>One way to think of softmax: it redistributes a fixed budget of probability — raising one token's share automatically lowers everyone else's.</p>
 ${pseudocode(`exponents = [e^z for z in logits]
 total = sum(exponents)
 probabilities = [exp / total for exp in exponents]
@@ -147,14 +147,8 @@ loss = -sum(target[i] * log(predicted[i]) for each i)
 
 # With a one-hot target, only the correct token's term survives:
 loss = -log(predicted[correct_token])`)}
-<p>When ${imath('p_{\\text{target}} = 1.0')}, ${imath('-\\log(1.0) = 0')} — no loss, perfect prediction. As ${imath('p_{\\text{target}}')} drops toward 0, the loss grows without bound. <strong class="text-text-primary">The loss is effectively asking: "how far is the model's confidence in the correct answer from the ideal of 100%?"</strong> </p>
-<div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary my-4"><strong class="text-text-primary">Why "cross-entropy"?</strong> The name comes from information theory (Claude Shannon, 1948). It measures the cost of using one distribution (the model's prediction ${imath('p')}) to represent events that actually follow another distribution (the truth ${imath('y')}). The worse ${imath('p')} matches ${imath('y')}, the higher the cost. This is <em>not</em> symmetric — it specifically penalises the model for being wrong about reality, not the other way around.</div>
-<p>Why ${imath('-\\log')} and not something simpler like ${imath('1 - p')}? Compare the two at different confidence levels:</p>
-<table class="w-full text-sm border-collapse my-3"><thead><tr class="text-left text-text-secondary"><th class="pb-2 pr-4">${imath('p_{\\text{target}}')}</th><th class="pb-2 pr-4">${imath('1 - p')}</th><th class="pb-2 pr-4">${imath('-\\log(p)')}</th><th class="pb-2">Meaning</th></tr></thead><tbody class="font-mono"><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4 text-positive font-bold">1.00</td><td class="py-1.5 pr-4">0.00</td><td class="py-1.5 pr-4 text-positive font-bold">0.00</td><td class="py-1.5 font-sans text-text-secondary">Perfect prediction</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4">0.90</td><td class="py-1.5 pr-4">0.10</td><td class="py-1.5 pr-4">0.11</td><td class="py-1.5 font-sans text-text-secondary">Confident and correct</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4">0.50</td><td class="py-1.5 pr-4">0.50</td><td class="py-1.5 pr-4">0.69</td><td class="py-1.5 font-sans text-text-secondary">Coin flip</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4">0.01</td><td class="py-1.5 pr-4">0.99</td><td class="py-1.5 pr-4 text-negative font-bold">4.61</td><td class="py-1.5 font-sans text-text-secondary">Confident and wrong</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4 text-negative font-bold">0.00</td><td class="py-1.5 pr-4">1.00</td><td class="py-1.5 pr-4 text-negative font-bold">${imath('\\infty')}</td><td class="py-1.5 font-sans text-text-secondary">Completely wrong</td></tr></tbody></table>
-<p>With ${imath('1 - p')}, going from "coin flip" to "confident and wrong" only doubles the penalty (0.50 → 0.99). With ${imath('-\\log')}, it jumps nearly 7× (0.69 → 4.61). The logarithm penalises low-confidence predictions far more steeply — which is exactly what training needs, because a model that's confident and wrong has the most to fix.</p>
-<p><strong>Reading the table:</strong> a helpful identity is:</p>
-${math('-\\log(0.5) = \\ln(2) \\approx 0.693')}
-<p>A coin-flip prediction costs about 0.69 — the loss when the model assigns equal probability to two options. Halving the probability again adds another ${imath('\\ln(2)')} to the loss: ${imath('-\\log(0.25) \\approx 1.39')}, ${imath('-\\log(0.125) \\approx 2.08')}, and so on. Each halving adds exactly 0.693.</p>
+<p>When ${imath('p_{\\text{target}} = 1.0')}, ${imath('-\\log(1.0) = 0')} — no loss, perfect prediction. As ${imath('p_{\\text{target}}')} drops toward 0, the loss grows without bound. <strong class="text-text-primary">The loss is effectively asking: "how far is the model's confidence in the correct answer from the ideal of 100%?"</strong></p>
+<p>One way to think of cross-entropy: it is the penalty for being confident in the wrong answer — the more confident, the harsher the penalty.</p>
 <p>Cross-entropy is not specific to language models — it's the standard loss function for <strong>classification</strong> across all of machine learning. The formula is always the same: ${imath('-\\log')}(probability assigned to the correct class). Image classifiers (like ResNet) use it to distinguish cats from dogs. Medical systems use it to classify scans as cancerous or benign. Recommendation engines use it to predict whether a user will click. Whenever a model picks one option from many, cross-entropy measures how well it picked.</p>`,
   },
   {
@@ -176,7 +170,7 @@ ${math('-\\log(0.5) = \\ln(2) \\approx 0.693')}
     subtitle: 'How gradients are computed',
     description: `<p>We know the loss. Now we need to compute how each parameter should change to reduce it. The algorithm that does this is called <strong>backpropagation</strong> — short for "backward propagation of errors." While the mathematical idea dates back further, the algorithm was popularised for neural networks by Rumelhart, Hinton, and Williams in their 1986 <em>Nature</em> paper <em>"Learning representations by back-propagating errors."</em></p>
 <p>Backpropagation answers one question: <em>"which knob should I turn, and by how much, to reduce the loss?"</em> It works by breaking this big question into many tiny questions — one per operation in the computation. Each operation is simple enough to answer directly (e.g., "if I increase the input to exp, how much does the output change?"). Then it chains the answers together.</p>
-<p>That chaining is the <strong>chain rule</strong> from calculus: if ${imath('f')} affects ${imath('g')}, and ${imath('g')} affects ${imath('h')}, then to find how ${imath('f')} affects ${imath('h')}, multiply "how ${imath('f')} affects ${imath('g')}" by "how ${imath('g')} affects ${imath('h')}." Think of exchange rates: if £1 = $1.30 and $1 = ¥150, then £1 = 1.30 × 150 = ¥195. Each node in the graph is one "exchange" — backpropagation multiplies them together, link by link.</p>
+<p>That chaining is the <strong>chain rule</strong> from calculus: if ${imath('f')} affects ${imath('g')}, and ${imath('g')} affects ${imath('h')}, then to find how ${imath('f')} affects ${imath('h')}, multiply "how ${imath('f')} affects ${imath('g')}" by "how ${imath('g')} affects ${imath('h')}."</p>
 <p>A crucial detail: backpropagation computes gradients for <strong>all</strong> parameters, not just one. In our model, all four token logits receive an update. The gradient ${imath('\\nabla L = p - y')} (Step 13) is non-zero for every token: the correct token gets pushed up (its gradient is negative), and all incorrect tokens get pushed down (their gradients are positive, proportional to how much probability they "stole").</p>
 <p>The <strong>computation graph</strong> below — a diagram of the chain of operations, drawn as connected nodes — traces the path for the target token (cat). Click "Forward" to see values propagate left→right, then "Backward" to see gradients flow right→left. At each node, the gradient flowing in is multiplied by the local derivative and passed to the inputs. When the chain rule reaches the logits, it produces the gradient we need for the update step.</p>`,
   },
@@ -191,7 +185,7 @@ ${math('-\\log(0.5) = \\ln(2) \\approx 0.693')}
 <li><strong>Correct token</strong> (${imath('y = 1')}): gradient ${imath('= p - 1')}. Since ${imath('p < 1')}, this is always <em>negative</em>. Subtracting a negative gradient means the logit goes <strong>up</strong> — exactly what we want.</li>
 <li><strong>Wrong tokens</strong> (${imath('y = 0')}): gradient ${imath('= p - 0 = p')}. Always <em>positive</em>. Subtracting a positive gradient pushes the logit <strong>down</strong>. And the more probability a wrong token captured, the harder it gets pushed.</li>
 </ul>
-<p>The entire gradient is just the gap between prediction and truth. No complicated derivatives — just ${imath('p - y')}.</p>`,
+<p>The entire gradient is just the gap between prediction and truth. No complicated derivatives — just ${imath('p - y')}. One way to think of it: the gradient moves probability mass — it takes from tokens that got too much and gives to the correct token.</p>`,
   },
   {
     number: 14,
@@ -270,17 +264,28 @@ for each token i:
 <p>Each training step runs the full pipeline you've learned: <strong>forward pass</strong> → <strong>cross-entropy loss</strong> → <strong>backpropagation</strong> → <strong>gradient descent update</strong>. One <em>epoch</em> trains on all three examples once. Click "Train" and watch the loss fall as the model learns to predict the next token in "the cat ate fish".</p>`,
   },
 
-  // ── STEPS 21–22: bridging to real world ────────────────────────────
+  // ── STEP 21: practical training ──────────────────────────────────
   {
     number: 21,
+    title: 'Practical Training',
+    subtitle: 'Overfitting, validation, and when to stop',
+    description: `<p>So far we've trained on our tiny dataset and measured loss on the same data we trained on. In practice, that's not enough — a model could simply memorise every example and appear perfect while failing on anything new. Real training requires a more careful approach.</p>
+<p>The solution is to <strong>hold data back</strong>. The dataset is split into three parts: a <strong>training set</strong> that the model learns from, a <strong>validation set</strong> used to monitor progress during training (the model never trains on this), and a <strong>test set</strong> held back until the very end to measure final performance.</p>
+<p>When a model performs well on training data but poorly on new data, it's called <strong>overfitting</strong> — the model has memorised specific examples rather than learning general patterns. The telltale sign: training loss keeps falling while validation loss starts to rise. In practice, training is often stopped when validation loss begins to increase — a technique called <strong>early stopping</strong>.</p>`,
+  },
+
+  // ── STEPS 22–23: bridging to real world ────────────────────────────
+  {
+    number: 22,
     title: 'Real-World Scale',
     subtitle: 'From toy model to production LLMs',
+
     description: `<p>Everything you've traced — softmax, cross-entropy, backpropagation, gradient descent, Adam — is exactly what powers real language models. ChatGPT, Claude, Gemini, and every other LLM use the identical training algorithm. The only differences are <strong>scale</strong> and <strong>engineering</strong>.</p>
-<p>The model you just trained has 268 parameters and learned from 3 examples. GPT-4 has an estimated <em>trillion+</em> parameters trained on <em>trillions</em> of tokens. The architecture is structurally the same — the same matrix operations, the same softmax, the same cross-entropy loss — just with dramatically larger dimensions.</p>
+<p>The model you just trained has 268 parameters and learned from 3 examples. GPT-4 is estimated to have hundreds of billions to over a trillion parameters, trained on <em>trillions</em> of tokens (estimates vary — exact figures are not public). The architecture is structurally the same — the same matrix operations, the same softmax, the same cross-entropy loss — just with dramatically larger dimensions.</p>
 <p>After pre-training (the next-token prediction you've learned about), production models go through additional stages: <strong>supervised fine-tuning</strong> (SFT) — training on hand-written examples of good questions and answers — and <strong>reinforcement learning from human feedback</strong> (RLHF) — a process where humans rate the model's responses, and those ratings are used to further adjust its parameters. These post-training stages are beyond the scope of this tutorial, but they are what turn a raw text predictor into a helpful assistant.</p>`,
   },
   {
-    number: 22,
+    number: 23,
     title: 'Further Reading',
     subtitle: 'Continue your learning journey',
     description: `<p>This tutorial covered the <strong>training pipeline</strong>: how a language model learns from prediction errors through softmax, cross-entropy loss, backpropagation, and gradient descent. We deliberately treated the transformer's internals — the attention mechanism, embeddings, residual connections — as a black box.</p>

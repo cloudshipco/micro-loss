@@ -5,6 +5,7 @@ import { useComputationGraph } from '../../composables/useComputationGraph'
 import { TOKEN_COLORS } from '../../engine/types'
 import FormulaLegend from '../ui/FormulaLegend.vue'
 import Callout from '../ui/Callout.vue'
+import DeepDive from '../ui/DeepDive.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
@@ -104,6 +105,14 @@ function getEdgePath(edge: { from: string; to: string }): string {
         { symbol: '\\partial p / \\partial z', label: 'how probabilities change with logits', color: '#fbbf24' },
       ]"
     />
+
+    <DeepDive title="The chain rule in detail">
+      <p>Think of exchange rates: if £1 = $1.30 and $1 = ¥150, then £1 = 1.30 × 150 = ¥195.
+        Each node in the computation graph is one "exchange" — backpropagation multiplies them
+        together, link by link. The chain rule table below shows exactly this: each row is one
+        local derivative (one exchange rate), and the final row is their product — the total
+        gradient that reaches the logit.</p>
+    </DeepDive>
 
     <!-- Computation graph SVG -->
     <div class="rounded-lg bg-surface-light p-4">

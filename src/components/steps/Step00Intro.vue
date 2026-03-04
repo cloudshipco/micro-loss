@@ -23,7 +23,7 @@ const pipeline = [
   <section class="border-b border-surface-lighter py-12">
     <div class="mb-8 text-center">
       <h2 class="mb-2 text-2xl font-bold text-text-primary">How does a language model learn?</h2>
-      <p class="text-sm text-brand-light">21 interactive steps from raw data to text generation</p>
+      <p class="text-sm text-brand-light">23 interactive steps from raw data to text generation</p>
     </div>
 
     <!-- The sentence with blank -->

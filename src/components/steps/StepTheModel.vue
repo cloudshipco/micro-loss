@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import { PARAMETER_GROUPS, TOTAL_PARAMETERS, SCALE_COMPARISONS, MODEL_CONFIG, randomInitMatrix } from '../../engine/model-config'
 import Callout from '../ui/Callout.vue'
+import DeepDive from '../ui/DeepDive.vue'
 
 const trained = ref(false)
 
@@ -115,6 +116,13 @@ function formatParam(n: number): string {
         </div>
       </div>
     </div>
+
+    <DeepDive title="Why transformers?">
+      <p>Unlike earlier designs that had to process tokens sequentially (one at a time), the transformer's
+        structure allows parallel computation: calculations for different positions in the input are largely
+        independent, so modern hardware (GPUs) can run them simultaneously — which is a large part of why
+        training large models is feasible at all.</p>
+    </DeepDive>
 
     <!-- Before / after training toggle -->
     <div class="rounded-lg bg-surface-light p-4">

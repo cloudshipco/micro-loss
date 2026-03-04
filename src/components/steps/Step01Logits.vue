@@ -4,6 +4,7 @@ import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import LogitSliders from '../ui/LogitSliders.vue'
 import Callout from '../ui/Callout.vue'
+import DeepDive from '../ui/DeepDive.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
@@ -111,6 +112,13 @@ const rankedTokens = computed(() =>
         </div>
       </div>
     </div>
+
+    <DeepDive title="Where does the name come from?">
+      <p>The name comes from statistics: the <strong class="text-text-primary">logit function</strong> (coined by Joseph Berkson in 1944)
+        maps a probability to an unbounded real number via log(p/(1−p)) — the logarithm of the odds. In neural
+        networks, "logits" refers to unbounded scores before any normalisation into probabilities. They live in
+        that same unconstrained space: any real number, positive or negative.</p>
+    </DeepDive>
 
     <!-- Try it callout -->
     <Callout variant="brand" title="Try it:">

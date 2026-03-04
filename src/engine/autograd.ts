@@ -195,9 +195,16 @@ export function buildFocusedGraph(logitValues: number[], targetIndex: number): F
   const expZ = zTarget.exp()
   expZ.label = 'e^z'
 
-  // Sum of all exp values (computed externally, treated as quasi-constant)
-  const totalExp = logitValues.reduce((s, z) => s + Math.exp(z), 0)
-  const sumExp = new Value(totalExp, 'Σe^z')
+  // Sum of non-target exponentials (constant w.r.t. z_target)
+  const otherExpSum = logitValues.reduce(
+    (s, z, i) => s + (i !== targetIndex ? Math.exp(z) : 0), 0
+  )
+  const otherExp = new Value(otherExpSum, 'Σe^z_other')
+
+  // Build sumExp WITH expZ as a child so gradients flow through both
+  // paths of the division: numerator (expZ) and denominator (sumExp)
+  const sumExp = expZ.add(otherExp)
+  sumExp.label = 'Σe^z'
 
   const pTarget = expZ.div(sumExp)
   pTarget.label = 'p_target'
