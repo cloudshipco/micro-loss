@@ -2,8 +2,9 @@
 import { computed } from 'vue'
 import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
-import MathBlock from '../ui/MathBlock.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
 import ValueDisplay from '../ui/ValueDisplay.vue'
+import Callout from '../ui/Callout.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
@@ -16,7 +17,13 @@ const targetLogit = computed(() => state.logits.value[state.targetIndex.value])
 
 <template>
   <div class="space-y-6">
-    <MathBlock latex="L = \color{#f87171}{-z_y} + \color{#f59e0b}{\log \sum e^{z_j}}" size="md" />
+    <FormulaLegend
+      latex="L = \textcolor{#f87171}{-z_y} + \textcolor{#f59e0b}{\log \sum e^{z_j}}"
+      :symbols="[
+        { symbol: '-z_y', label: 'raise the correct token', color: '#f87171' },
+        { symbol: '\\log \\sum e^{z_j}', label: 'suppress competitors', color: '#f59e0b' },
+      ]"
+    />
 
     <!-- Concrete substitution -->
     <div class="rounded-lg bg-surface-light p-4">
@@ -81,11 +88,10 @@ const targetLogit = computed(() => state.logits.value[state.targetIndex.value])
       />
     </div>
 
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Only relative values matter:</strong>
+    <Callout title="Only relative values matter:">
       A target logit of 10 with competitors at 0 gives the
       same loss as a target of 110 with competitors at 100. The optimal strategy isn't to make the
       target logit infinitely large &mdash; it's to make it large <em>relative</em> to the others.
-    </div>
+    </Callout>
   </div>
 </template>

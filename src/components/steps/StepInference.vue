@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { computeSoftmax } from '../../engine/softmax'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import BarChart from '../charts/BarChart.vue'
+import Callout from '../ui/Callout.vue'
 
 // Logits representing a well-trained model — fish strongly preferred
 const baseLogits = [0.1, 0.4, 0.8, 3.5]
@@ -179,8 +180,7 @@ function getLossColor(p: number): string {
     </div>
 
     <!-- How sampling works -->
-    <div class="rounded-lg bg-surface-light p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Sampling vs. argmax:</strong>
+    <Callout variant="subtle" title="Sampling vs. argmax:">
       <p class="mt-2">
         At low temperature, the model nearly always picks "fish" (highest probability). Always
         picking the single most likely token is called <strong>greedy decoding</strong> — "greedy"
@@ -188,14 +188,13 @@ function getLossColor(p: number): string {
         next. It's predictable but can produce repetitive text. At higher temperatures,
         lower-probability tokens get a real chance to be sampled, making the output more varied.
       </p>
-    </div>
+    </Callout>
 
     <!-- What this means -->
-    <div class="rounded-lg border border-positive/30 bg-positive/5 p-4 text-sm text-text-secondary">
-      <strong class="text-positive">This is how every LLM generates text.</strong>
+    <Callout variant="positive" title="This is how every LLM generates text.">
       When you send a message to ChatGPT or Claude, this exact process runs for every token
       in the reply — often hundreds of autoregressive steps to generate a full response.
-      The next step bridges our toy model to the real thing.
-    </div>
+      Next, you'll watch a real model train from scratch and generate text using this process.
+    </Callout>
   </div>
 </template>

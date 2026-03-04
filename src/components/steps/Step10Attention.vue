@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue'
 import { computeSoftmax } from '../../engine/softmax'
 import BarChart from '../charts/BarChart.vue'
-import MathBlock from '../ui/MathBlock.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
+import Callout from '../ui/Callout.vue'
 
 const keys = ref([
   { label: 'The', vector: [1.0, 0.0] },
@@ -26,21 +27,29 @@ const attentionWeights = computed(() =>
 
 const keyLabels = computed(() => keys.value.map(k => k.label))
 const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'] as const
+
+const attentionSymbols = [
+  { symbol: 'Q', label: 'query vectors ("what am I looking for?")', color: '#93c5fd' },
+  { symbol: 'K', label: 'key vectors ("what do I contain?")', color: '#34d399' },
+  { symbol: 'V', label: 'value vectors ("what do I contribute?")', color: '#fbbf24' },
+]
 </script>
 
 <template>
   <div class="space-y-6">
-    <MathBlock latex="\text{Attention} = \text{softmax}(\color{#6366f1}{QK^T})V" size="md" />
+    <FormulaLegend
+      latex="\text{Attention} = \text{softmax}(\textcolor{#93c5fd}{Q}\textcolor{#34d399}{K}^T)\textcolor{#fbbf24}{V}"
+      :symbols="attentionSymbols"
+    />
 
     <!-- Tie-back to the main tutorial -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Two jobs, same math:</strong>
+    <Callout title="Two jobs, same math:">
       You've now seen softmax do its first job: turning logits into <em>next-token probabilities</em>.
       Here's its second job: turning similarity scores into <em>attention weights</em> — values that
       control how much each token in the context contributes to the output at a given position.
       The inputs are different (dot-product scores instead of model output logits), but the
       exponentiate-then-normalize machinery is identical.
-    </div>
+    </Callout>
 
     <!-- Editable query vector -->
     <div class="rounded-lg bg-surface-light p-4">
@@ -104,20 +113,18 @@ const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'] as const
     />
 
     <!-- Try it callout -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Try it:</strong>
+    <Callout variant="brand" title="Try it:">
       Set the query to [1.0, 0.0] &mdash; the attention will focus heavily on "The" (whose key vector
       is [1.0, 0.0]). Now try [0.0, 1.0] &mdash; attention shifts to "cat." The dot product measures
       alignment between query and key, and softmax converts those alignment scores into weights.
-    </div>
+    </Callout>
 
     <!-- Scope note -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Scope note:</strong>
+    <Callout title="Scope note:">
       The attention mechanism's internals are beyond this tutorial's main scope &mdash; this step
       is a brief illustration of how softmax is reused in a second role. The same
       exponentiate-then-normalize pipeline you learned for next-token prediction appears here,
       just with different inputs.
-    </div>
+    </Callout>
   </div>
 </template>

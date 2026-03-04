@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import TemperatureSlider from '../ui/TemperatureSlider.vue'
 import BarChart from '../charts/BarChart.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
+import Callout from '../ui/Callout.vue'
 
 const state = createTutorialState()
 provideTutorialState(state)
@@ -11,6 +13,14 @@ const labels = computed(() => [...state.tokens])
 
 <template>
   <div class="space-y-6">
+    <FormulaLegend
+      latex="\textcolor{#34d399}{p_i} = e^{\textcolor{#93c5fd}{z_i} \,/\, \textcolor{#f87171}{\tau}} \,/\, \textstyle\sum_j \, e^{\textcolor{#93c5fd}{z_j} \,/\, \textcolor{#f87171}{\tau}}"
+      :symbols="[
+        { symbol: 'p_i', label: 'probability for token i', color: '#34d399' },
+        { symbol: 'z_i', label: 'logit for token i', color: '#93c5fd' },
+        { symbol: '\\tau', label: 'temperature (scaling factor)', color: '#f87171' },
+      ]"
+    />
     <TemperatureSlider />
 
     <div class="grid gap-6 md:grid-cols-2">
@@ -58,24 +68,22 @@ const labels = computed(() => [...state.tokens])
       </div>
     </div>
 
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Temperature effects:</strong>
+    <Callout title="Temperature effects:">
       <ul class="mt-2 list-inside list-disc space-y-1">
         <li><strong>&tau; &rarr; 0:</strong> Distribution becomes peaked (argmax), model is "confident"</li>
         <li><strong>&tau; = 1:</strong> Standard softmax</li>
         <li><strong>&tau; &rarr; &infin;:</strong> Distribution approaches uniform, model is "uncertain"</li>
       </ul>
-    </div>
+    </Callout>
 
     <!-- Real-world context -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">In practice:</strong>
+    <Callout variant="brand" title="In practice:">
       Setting <code class="rounded bg-surface-light px-1.5 py-0.5 text-xs">temperature=0.2</code>
       makes the model pick its top choice almost deterministically &mdash; great for factual queries and code.
       Setting <code class="rounded bg-surface-light px-1.5 py-0.5 text-xs">temperature=1.0</code> or higher lets
       lower-ranked tokens have a real chance of being sampled &mdash; producing more creative, surprising, and
       occasionally nonsensical text. The math you're playing with right now is happening billions of times
       per second inside these models.
-    </div>
+    </Callout>
   </div>
 </template>

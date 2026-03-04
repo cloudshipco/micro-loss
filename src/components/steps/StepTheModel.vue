@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import { PARAMETER_GROUPS, TOTAL_PARAMETERS, SCALE_COMPARISONS, MODEL_CONFIG, randomInitMatrix } from '../../engine/model-config'
+import Callout from '../ui/Callout.vue'
 
 const trained = ref(false)
 
@@ -203,13 +204,12 @@ function formatParam(n: number): string {
     </div>
 
     <!-- Embedding dimension explainer -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Why 8 dimensions?</strong>
+    <Callout variant="info" title="Why 8 dimensions?">
       The <strong class="text-text-primary">embedding dimension</strong> controls how many numbers represent each token internally. Think of it as the richness of each token's description: with 2 numbers you could only encode basic properties (say, "noun vs verb" and "common vs rare"); with 8 numbers the model can encode richer relationships. Our choice of 8 is the smallest value that keeps the maths meaningful while fitting neatly in a visual table.
       <p class="mt-2">
         A larger embedding dimension gives the model more capacity — more room to encode nuanced distinctions between tokens — but at a cost. Attention matrices are <em>embedding dimension × embedding dimension</em>, so doubling the dimension roughly quadruples the attention parameters. Real models balance expressiveness against compute: GPT-2 uses 768, GPT-3 uses 12,288, and GPT-4 is estimated at ~16,000.
       </p>
-    </div>
+    </Callout>
 
     <!-- Scale comparison -->
     <div class="rounded-lg bg-surface-light p-4">

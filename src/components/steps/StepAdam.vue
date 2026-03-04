@@ -10,6 +10,8 @@ import { computeUpdate } from '../../engine/update'
 import { initAdam, adamStep, DEFAULT_ADAM_CONFIG } from '../../engine/adam'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import BarChart from '../charts/BarChart.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
+import Callout from '../ui/Callout.vue'
 
 const DEFAULT_LOGITS = [0.1, 0.5, 1.0, 2.0]
 const TARGET_INDEX = 3 // fish
@@ -109,6 +111,17 @@ const maxEffectiveLR = computed(() => Math.max(...effectiveLRs.value, 0.001))
 
 <template>
   <div class="space-y-6">
+
+    <FormulaLegend
+      latex="\textcolor{#93c5fd}{\theta} \leftarrow \textcolor{#93c5fd}{\theta} - \textcolor{#6366f1}{\alpha} \cdot \textcolor{#34d399}{\hat{m}} \,/\, (\sqrt{\textcolor{#fbbf24}{\hat{v}}} + \textcolor{#f87171}{\epsilon})"
+      :symbols="[
+        { symbol: '\\theta', label: 'parameters (logits, weights, etc.)', color: '#93c5fd' },
+        { symbol: '\\alpha', label: 'learning rate', color: '#6366f1' },
+        { symbol: '\\hat{m}', label: 'bias-corrected momentum', color: '#34d399' },
+        { symbol: '\\hat{v}', label: 'bias-corrected second moment', color: '#fbbf24' },
+        { symbol: '\\epsilon', label: 'stability constant (prevents division by zero)', color: '#f87171' },
+      ]"
+    />
 
     <!-- Controls -->
     <div class="grid gap-4 md:grid-cols-2">
@@ -254,8 +267,7 @@ const maxEffectiveLR = computed(() => Math.max(...effectiveLRs.value, 0.001))
     </div>
 
     <!-- How Adam works -->
-    <div class="rounded-lg bg-surface-light p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Under the hood:</strong>
+    <Callout variant="subtle" title="Under the hood:">
       <div class="mt-2 space-y-2">
         <div class="flex items-start gap-2">
           <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-lighter text-xs font-bold text-text-secondary">1</span>
@@ -270,14 +282,13 @@ const maxEffectiveLR = computed(() => Math.max(...effectiveLRs.value, 0.001))
           <p><strong class="text-text-primary">Bias correction</strong>: Early in training, the running averages are biased toward zero (they started at zero). Adam corrects for this so the first few steps aren't artificially small.</p>
         </div>
       </div>
-    </div>
+    </Callout>
 
     <!-- Try it callout -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Try it:</strong>
+    <Callout variant="brand" title="Try it:">
       Set the learning rate to 2.0, reset, and run 50 steps. Watch SGD oscillate wildly while
       Adam stays smooth. Then try <span v-html="km('\\beta_1')"></span> = 0 (no momentum) — Adam still adapts per-parameter
       learning rates but loses the smoothing effect.
-    </div>
+    </Callout>
   </div>
 </template>

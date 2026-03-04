@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
+import Callout from '../ui/Callout.vue'
 
 // A sample sequence using only our vocabulary tokens
 const sentenceTokens = ['the', 'cat', 'ate', 'fish'] as const
@@ -174,12 +175,11 @@ const tokenizedInput = computed(() => {
     </div>
 
     <!-- Real-world scale note -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Real tokenizers:</strong>
+    <Callout variant="brand" title="Real tokenizers:">
       GPT-4 uses a vocabulary of ~100,000 tokens. Common words like "cat" get their own token.
       Rare or long words get split into smaller fragments:
       "tokenization" → ["token", "ization"]. This way the vocabulary stays manageable while
       still being able to represent any word. Raw text is never used directly — only tokens represented as integer IDs.
-    </div>
+    </Callout>
   </div>
 </template>

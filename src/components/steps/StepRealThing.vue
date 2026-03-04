@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { TOTAL_PARAMETERS } from '../../engine/model-config'
+import { ToyModel } from '../../engine/toy-model'
+import Callout from '../ui/Callout.vue'
 
 const comparisons = [
   {
@@ -11,13 +12,13 @@ const comparisons = [
   },
   {
     dimension: 'Parameters',
-    ours: `${TOTAL_PARAMETERS}`,
+    ours: `${ToyModel.PARAM_COUNT}`,
     production: 'Hundreds of billions to trillions',
-    detail: 'GPT-3 has 175 billion. GPT-4 is estimated at over a trillion. The architecture is structurally identical to ours — same matrix operations — just with vastly larger dimensions. Each attention head, embedding vector, and MLP (multilayer perceptron — the feedforward network inside each transformer layer) is wider and deeper.',
+    detail: 'GPT-3 has 175 billion. GPT-4 is estimated at over a trillion. The architecture uses the same types of operations — embeddings, matrix multiplications, nonlinearities — just with vastly larger dimensions. Each attention head, embedding vector, and MLP (multilayer perceptron — the feedforward network inside each transformer layer) is wider and deeper.',
   },
   {
     dimension: 'Training data',
-    ours: '6 examples',
+    ours: '3 examples',
     production: 'Trillions of tokens',
     detail: 'Models are trained on enormous text corpora: books, websites, code, scientific papers. The dataset size is measured in tokens, not documents — GPT-3 was trained on about 300 billion tokens, and later models use significantly more.',
   },
@@ -35,9 +36,9 @@ const comparisons = [
   },
   {
     dimension: 'Architecture',
-    ours: '1 layer, 1 attention head',
-    production: '100+ layers, 96+ heads',
-    detail: 'Each additional layer gives the model more capacity to learn complex patterns. Multiple attention heads let the model attend to different aspects of the input simultaneously — one head might track grammar, another might track entity references.',
+    ours: 'Embeddings + 2-layer MLP',
+    production: '100+ layers, 96+ attention heads',
+    detail: 'Our trained model uses embeddings and a simple feed-forward network. Production models add attention (which you learned about in the Attention step), residual connections, layer normalisation, and stack dozens of these layers deep. Each additional layer gives the model more capacity to learn complex patterns.',
   },
   {
     dimension: 'Post-training',
@@ -95,12 +96,11 @@ function toggleFaq(index: number) {
   <div class="space-y-6">
 
     <!-- Intro -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">From toy to production:</strong>
+    <Callout variant="info" title="From toy to production:">
       Everything you've learned — softmax, cross-entropy, backpropagation, gradient descent, Adam —
       is exactly what powers real language models. The only differences are scale and engineering.
       Click any row below to learn more.
-    </div>
+    </Callout>
 
     <!-- Comparison table -->
     <div class="overflow-x-auto">
@@ -172,12 +172,11 @@ function toggleFaq(index: number) {
     </div>
 
     <!-- Closing thought -->
-    <div class="rounded-lg border border-positive/30 bg-positive/5 p-4 text-sm text-text-secondary">
-      <strong class="text-positive">The same math, at scale:</strong>
+    <Callout variant="positive" title="The same math, at scale:">
       There is no secret ingredient. The entire mechanism — predict, measure error, compute gradient,
       update parameters — is exactly what you've traced through this tutorial. Production models
       add engineering (distributed training, mixed precision, efficient attention) but the fundamental
       algorithm is identical. You now understand how language models learn.
-    </div>
+    </Callout>
   </div>
 </template>

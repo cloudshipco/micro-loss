@@ -2,8 +2,16 @@
 import katex from 'katex'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import { EXAMPLE_CONTEXT_VECTOR } from '../../engine/model-config'
+import Callout from '../ui/Callout.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
+
+const formulaSymbols = [
+  { symbol: 'z_i', label: 'logit (score) for token i', color: '#93c5fd' },
+  { symbol: '\\mathbf{h}', label: 'context vector', color: '#34d399' },
+  { symbol: '\\mathbf{w}_i', label: 'vocabulary embedding for token i', color: '#fbbf24' },
+]
 
 const exampleLogits = [0.1, 0.5, 1.0, 2.0]
 
@@ -13,12 +21,18 @@ const contextVectorPreview = EXAMPLE_CONTEXT_VECTOR
 <template>
   <div class="space-y-6">
 
+    <!-- Formula legend -->
+    <FormulaLegend
+      latex="\textcolor{#93c5fd}{z_i} = \textcolor{#34d399}{\mathbf{h}}^T \textcolor{#fbbf24}{\mathbf{w}_i}"
+      :symbols="formulaSymbols"
+    />
+
     <!-- Context vector reminder -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
+    <Callout variant="info">
       At the end of the forward pass you have a <strong class="text-text-primary">context vector</strong>
       — a long list of numbers summarising the context <em>"the cat ate"</em>.
       The question now is: how do we turn that single vector into one score per vocabulary token?
-    </div>
+    </Callout>
 
     <!-- The dot product step -->
     <div class="rounded-lg bg-surface-light p-5">
@@ -70,8 +84,7 @@ const contextVectorPreview = EXAMPLE_CONTEXT_VECTOR
     </div>
 
     <!-- Why dot products measure compatibility -->
-    <div class="rounded-lg bg-surface-light p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Geometric intuition:</strong>
+    <Callout variant="subtle" title="Geometric intuition:">
       <p class="mt-2">
         If the context vector and a vocabulary vector have large values in the same
         positions — meaning they are "pointing in similar directions" in the model's learned space —
@@ -83,16 +96,15 @@ const contextVectorPreview = EXAMPLE_CONTEXT_VECTOR
         "cat", and "ate". The dot product is the mechanism that converts that geometric
         alignment into a number.
       </p>
-    </div>
+    </Callout>
 
     <!-- What these scores are NOT -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">These scores are not probabilities.</strong>
+    <Callout variant="info" title="These scores are not probabilities.">
       They can be any real number — positive, negative, large, or small — and they don't
       sum to anything in particular. The name for these raw scores is
       <strong class="text-text-primary">logits</strong>. The next step explains the name
       and what properties they have.
-    </div>
+    </Callout>
 
   </div>
 </template>

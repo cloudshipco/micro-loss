@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
+import Callout from '../ui/Callout.vue'
 
 interface TrainingExample {
   context: string[]
@@ -9,12 +10,9 @@ interface TrainingExample {
 }
 
 const examples: TrainingExample[] = [
+  { context: ['the'], targetIndex: 1, note: 'Given just "the", predict "cat"' },
+  { context: ['the', 'cat'], targetIndex: 2, note: 'Given "the cat", predict "ate"' },
   { context: ['the', 'cat', 'ate'], targetIndex: 3, note: '"the cat ate fish" — our running example' },
-  { context: ['cat', 'ate', 'fish'], targetIndex: 0, note: 'The sentence loops: "…fish the cat ate fish…"' },
-  { context: ['ate', 'fish', 'the'], targetIndex: 1, note: 'Continuing the loop: "…the cat…"' },
-  { context: ['fish', 'the', 'cat'], targetIndex: 2, note: 'And again: "…cat ate…"' },
-  { context: ['the', 'cat'], targetIndex: 2, note: 'Shorter context, same pattern: "the cat ate"' },
-  { context: ['ate', 'fish'], targetIndex: 0, note: '"ate fish the" — predicting the article' },
 ]
 
 const currentIndex = ref(0)
@@ -37,11 +35,10 @@ function next() {
 <template>
   <div class="space-y-6">
     <!-- What a language model does -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">The goal: predict the next token.</strong>
+    <Callout variant="info" title="The goal: predict the next token.">
       Given a sequence of tokens (the context), what comes next?
       Training data provides millions of examples with known answers.
-    </div>
+    </Callout>
 
     <!-- Training example card -->
     <div class="rounded-lg bg-surface-light p-6">
@@ -104,25 +101,37 @@ function next() {
       </button>
     </div>
 
-    <!-- Wrong options -->
+    <!-- Vocabulary options -->
     <div class="rounded-lg bg-surface-light p-4">
       <div class="mb-3 text-sm font-medium text-text-secondary">All vocabulary options — only one is correct:</div>
       <div class="grid grid-cols-4 gap-3">
         <div
           v-for="(token, index) in TOKENS"
           :key="token"
-          class="rounded-lg p-3 text-center transition"
-          :class="index === currentExample.targetIndex
-            ? 'ring-1'
-            : 'opacity-50'"
-          :style="index === currentExample.targetIndex ? {
-            backgroundColor: TOKEN_COLORS[index] + '20',
-            ringColor: TOKEN_COLORS[index]
-          } : {}"
+          class="rounded-lg border p-3 text-center transition-all duration-200"
+          :style="{
+            borderColor: index === currentExample.targetIndex
+              ? TOKEN_COLORS[index]
+              : TOKEN_COLORS[index] + '25',
+            backgroundColor: index === currentExample.targetIndex
+              ? TOKEN_COLORS[index] + '15'
+              : TOKEN_COLORS[index] + '08',
+            boxShadow: index === currentExample.targetIndex
+              ? `0 0 12px ${TOKEN_COLORS[index]}25`
+              : 'none',
+          }"
         >
-          <div class="font-mono font-semibold" :style="{ color: TOKEN_COLORS[index] }">{{ token }}</div>
+          <div
+            class="font-mono text-lg font-bold transition-all duration-200"
+            :style="{ color: TOKEN_COLORS[index], opacity: index === currentExample.targetIndex ? 1 : 0.5 }"
+          >{{ token }}</div>
           <div class="mt-1 text-xs text-text-secondary">ID {{ index }}</div>
-          <div class="mt-1 text-xs font-medium" :class="index === currentExample.targetIndex ? 'text-positive' : 'text-negative'">
+          <div
+            class="mt-1.5 inline-block rounded-full px-2 py-0.5 text-xs font-medium"
+            :class="index === currentExample.targetIndex
+              ? 'bg-positive/15 text-positive'
+              : 'bg-surface-lighter/50 text-text-secondary'"
+          >
             {{ index === currentExample.targetIndex ? '✓ correct' : '✗ wrong' }}
           </div>
         </div>

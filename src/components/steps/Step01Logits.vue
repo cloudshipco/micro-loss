@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import LogitSliders from '../ui/LogitSliders.vue'
+import Callout from '../ui/Callout.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
@@ -48,11 +49,8 @@ const rankedTokens = computed(() =>
 <template>
   <div class="space-y-6">
     <!-- Concrete example callout -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
-      <strong class="text-brand-light">Running example:</strong>
-      <span class="text-text-secondary">
+    <Callout title="Running example:">
         The model produced scores for <em>"the cat ate ___"</em>:
-      </span>
       <span
         v-for="(token, index) in state.tokens"
         :key="token"
@@ -61,7 +59,7 @@ const rankedTokens = computed(() =>
       >
         {{ token }}&nbsp;→&nbsp;{{ state.logits.value[index].toFixed(1) }}<span v-if="index < state.tokens.length - 1" class="text-text-secondary">,</span>
       </span>
-    </div>
+    </Callout>
 
     <div class="grid gap-6 md:grid-cols-2">
       <div>
@@ -115,12 +113,11 @@ const rankedTokens = computed(() =>
     </div>
 
     <!-- Try it callout -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Try it:</strong>
+    <Callout variant="brand" title="Try it:">
       Drag "fish"'s logit down below "ate"'s and watch the ratio flip. Then try setting
       all four logits to the same value &mdash; the ratio becomes 1.0&times; (equally likely).
       You can also drag logits into negative territory &mdash; that's valid too. Only
       the <em>differences</em> between logits matter, not whether they're positive or negative.
-    </div>
+    </Callout>
   </div>
 </template>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import Callout from '../ui/Callout.vue'
+
 const resources = [
   {
     title: 'MicroGPT — Andrej Karpathy',
@@ -121,11 +123,10 @@ const resources = [
       </a>
     </div>
 
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Recommended path:</strong>
+    <Callout variant="info" title="Recommended path:">
       If you want to understand the <em>architecture</em> (the black box from Step 4),
       start with Karpathy's video or the Illustrated Transformer. If you want to
       <em>build and train</em> a model yourself, go straight to MicroGPT.
-    </div>
+    </Callout>
   </div>
 </template>

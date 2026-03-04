@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
+import Callout from '../ui/Callout.vue'
 
 const sentence = ['the', 'cat', 'ate', null]
 
@@ -65,32 +66,24 @@ const pipeline = [
 
     <div class="mx-auto max-w-2xl space-y-3 leading-relaxed text-text-secondary">
       <!-- What this tutorial covers -->
-      <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
-        <strong class="text-text-primary">This tutorial covers:</strong>
-        <span class="text-text-secondary">
+      <Callout title="This tutorial covers:">
           the complete training pipeline — dataset, tokenization, forward pass, softmax,
           cross-entropy loss, backpropagation, gradients, the Adam optimizer, and step-by-step
           text generation. No prior machine learning knowledge needed.
-        </span>
-      </div>
+      </Callout>
 
-      <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm">
-        <strong class="text-text-primary">This tutorial does not cover:</strong>
-        <span class="text-text-secondary">
+      <Callout title="This tutorial does not cover:">
           the internals of the transformer — embeddings, multi-head attention layers, positional
           encoding, or residual connections. We treat the model as a black box that outputs
           raw scores, and explain what happens to those scores from there.
-        </span>
-      </div>
+      </Callout>
 
-      <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm">
-        <span class="text-text-secondary">
+      <Callout variant="brand">
           Inspired by Andrej Karpathy's
           <a href="https://karpathy.github.io/2026/02/12/microgpt/" target="_blank" rel="noopener noreferrer"
             class="text-brand-light hover:underline">MicroGPT</a>
           — a complete GPT in 200 lines of Python.
-        </span>
-      </div>
+      </Callout>
     </div>
 
     <!-- Pipeline preview -->

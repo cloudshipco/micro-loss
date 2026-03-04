@@ -6,6 +6,7 @@ import {
   EXAMPLE_EMBEDDING_MATRIX,
   EXAMPLE_CONTEXT_VECTOR,
 } from '../../engine/model-config'
+import Callout from '../ui/Callout.vue'
 
 // Training document for the "positions" visualisation
 const document = ['the', 'cat', 'ate', 'fish']
@@ -261,8 +262,7 @@ function resetStages() {
     </div>
 
     <!-- Position embedding explainer -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">How position embeddings work:</strong>
+    <Callout variant="info" title="How position embeddings work:">
       The token embedding for "cat" is the same regardless of where "cat" appears in the sequence.
       Without position information, the model couldn't distinguish "the cat ate" from "ate the cat"
       — the same three vectors in a different order.
@@ -273,7 +273,7 @@ function resetStages() {
         After this addition, two copies of "cat" at different positions have different vectors — the model now
         knows both <em>what</em> the token is and <em>where</em> it sits.
       </p>
-    </div>
+    </Callout>
 
     <!-- ─── ENHANCED ANIMATION ─── -->
     <div class="rounded-lg bg-surface-light p-5">
@@ -405,11 +405,10 @@ function resetStages() {
     </div>
 
     <!-- Bridge -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">The context vector is not yet the output.</strong>
+    <Callout variant="brand" title="The context vector is not yet the output.">
       It still needs to be compared against every vocabulary token to produce scores.
       That comparison — and the precise mechanism that does it — is the next step.
-    </div>
+    </Callout>
 
   </div>
 </template>

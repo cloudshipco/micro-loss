@@ -4,6 +4,8 @@ import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import LogitSliders from '../ui/LogitSliders.vue'
 import PieChart from '../charts/PieChart.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
+import Callout from '../ui/Callout.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
@@ -24,6 +26,15 @@ function shiftAllLogits(delta: number) {
 
 <template>
   <div class="space-y-4">
+    <FormulaLegend
+      latex="\textcolor{#34d399}{p_i} = e^{\textcolor{#93c5fd}{z_i}} \,/\, \textstyle\sum_j \, e^{\textcolor{#93c5fd}{z_j}}"
+      :symbols="[
+        { symbol: 'p_i', label: 'probability for token i', color: '#34d399' },
+        { symbol: 'z_i', label: 'logit for token i', color: '#93c5fd' },
+        { symbol: 'e', label: 'Euler\'s number (≈ 2.718)', color: '#e2e0ea' },
+        { symbol: '\\textstyle\\sum_j', label: 'sum over all tokens j', color: '#e2e0ea' },
+      ]"
+    />
     <LogitSliders />
     <!-- Step-by-step computation -->
     <div class="rounded-lg bg-surface-light p-4">
@@ -113,12 +124,11 @@ function shiftAllLogits(delta: number) {
     </div>
 
     <!-- Competition insight -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Key insight &mdash; softmax enforces competition:</strong>
+    <Callout title="Key insight &mdash; softmax enforces competition:">
       The probabilities always sum to exactly 1.0 — check the chart. Every token's probability
       comes at the expense of the others. Try raising just one token's logit &mdash;
       watch how the other tokens' probabilities shrink. Softmax redistributes belief: there's a fixed
       amount of probability to go around, and the tokens are competing for it.
-    </div>
+    </Callout>
   </div>
 </template>

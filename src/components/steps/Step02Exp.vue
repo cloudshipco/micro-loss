@@ -4,7 +4,9 @@ import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import BarChart from '../charts/BarChart.vue'
 import LogitSliders from '../ui/LogitSliders.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
 import MathBlock from '../ui/MathBlock.vue'
+import Callout from '../ui/Callout.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
@@ -41,6 +43,12 @@ const ratioInsight = computed(() => {
 
 <template>
   <div class="space-y-4">
+    <FormulaLegend
+      latex="e^{\textcolor{#93c5fd}{z_i}}"
+      :symbols="[
+        { symbol: 'z_i', label: 'logit for token i', color: '#93c5fd' },
+      ]"
+    />
     <LogitSliders />
     <div class="flex flex-wrap gap-4">
       <div
@@ -65,9 +73,8 @@ const ratioInsight = computed(() => {
     <MathBlock :latex="sumExpLatex" size="sm" />
 
     <!-- Logit difference → probability ratio (live) -->
-    <div class="rounded-lg bg-surface-light p-4 text-sm">
-      <strong class="text-text-primary">Logit difference &rarr; probability ratio:</strong>
-      <p class="mt-2 text-text-secondary">
+    <Callout variant="subtle" title="Logit difference &rarr; probability ratio:">
+      <p class="mt-2">
         <span class="font-mono" :style="{ color: ratioInsight.topColor }">{{ ratioInsight.topToken }}</span>
         (<span v-html="km(`e^z`)"></span> = {{ ratioInsight.topExp.toFixed(2) }})
         divided by
@@ -78,16 +85,15 @@ const ratioInsight = computed(() => {
         This is exactly <span v-html="km(`e^{${ratioInsight.logitDiff.toFixed(1)}} \\approx ${Math.exp(ratioInsight.logitDiff).toFixed(1)}`)"></span>×
         — the ratio depends only on the logit <em>difference</em>, not the absolute values.
       </p>
-    </div>
+    </Callout>
 
     <!-- Try it callout -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Try it:</strong>
+    <Callout variant="brand" title="Try it:">
       Set two logits to 1.0 and 2.0 (a difference of just 1). After exponentiation
       they become <span v-html="km('e^1 \\approx 2.72')"></span> and <span v-html="km('e^2 \\approx 7.39')"></span> — a ratio of ~2.7×.
       Now try 2.0 and 4.0 (difference of 2): <span v-html="km('e^2 \\approx 7.39')"></span> vs <span v-html="km('e^4 \\approx 54.60')"></span> — ~7.4×.
       Small logit differences become large after exponentiation. This amplification is a feature,
       not a bug — it lets the model express strong preferences.
-    </div>
+    </Callout>
   </div>
 </template>

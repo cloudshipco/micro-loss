@@ -11,8 +11,9 @@ import { computeGradient } from '../../engine/gradient'
 import { computeUpdate } from '../../engine/update'
 import BarChart from '../charts/BarChart.vue'
 import LearningRateSlider from '../ui/LearningRateSlider.vue'
-import MathBlock from '../ui/MathBlock.vue'
+import FormulaLegend from '../ui/FormulaLegend.vue'
 import ValueDisplay from '../ui/ValueDisplay.vue'
+import Callout from '../ui/Callout.vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { LineChart as ELineChart } from 'echarts/charts'
@@ -135,7 +136,15 @@ const lossChartOption = computed(() => ({
 
 <template>
   <div class="space-y-6">
-    <MathBlock latex="z \leftarrow z - \color{#6366f1}{\eta}(p - y)" size="md" />
+    <FormulaLegend
+      latex="\textcolor{#93c5fd}{z} \leftarrow \textcolor{#93c5fd}{z} - \textcolor{#6366f1}{\eta}(\textcolor{#34d399}{p} - \textcolor{#fbbf24}{y})"
+      :symbols="[
+        { symbol: 'z', label: 'logits (current scores)', color: '#93c5fd' },
+        { symbol: '\\eta', label: 'learning rate', color: '#6366f1' },
+        { symbol: 'p', label: 'predicted probabilities', color: '#34d399' },
+        { symbol: 'y', label: 'target (one-hot)', color: '#fbbf24' },
+      ]"
+    />
 
     <LearningRateSlider />
 
@@ -234,12 +243,11 @@ const lossChartOption = computed(() => ({
     />
 
     <!-- Try it callout -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Try it:</strong>
+    <Callout variant="brand" title="Try it:">
       Click "Train 20 Steps" and watch the loss curve. It drops steeply at first (big easy gains)
       then flattens as the model approaches the optimum. Try adjusting the learning rate:
       too high (> 1.0) and the loss may oscillate; too low (< 0.1) and convergence is slow.
       This is gradient descent in action &mdash; the core algorithm behind all deep learning.
-    </div>
+    </Callout>
   </div>
 </template>

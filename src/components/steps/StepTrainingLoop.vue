@@ -7,6 +7,7 @@ import { computeUpdate } from '../../engine/update'
 import { initAdam, adamStep, DEFAULT_ADAM_CONFIG } from '../../engine/adam'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import BarChart from '../charts/BarChart.vue'
+import Callout from '../ui/Callout.vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { LineChart as ELineChart } from 'echarts/charts'
@@ -17,14 +18,11 @@ use([ELineChart, GridComponent, TooltipComponent, CanvasRenderer])
 
 const DEFAULT_LOGITS = [0.1, 0.5, 1.0, 2.0]
 
-// Training examples: context → target (from repeating "the cat ate fish")
+// Training examples: context → target (subsequences of "the cat ate fish")
 const TRAINING_EXAMPLES = [
-  { context: 'the cat ate', target: 3, targetWord: 'fish' },
-  { context: 'cat ate fish', target: 0, targetWord: 'the' },
-  { context: 'ate fish the', target: 1, targetWord: 'cat' },
-  { context: 'fish the cat', target: 2, targetWord: 'ate' },
+  { context: 'the', target: 1, targetWord: 'cat' },
   { context: 'the cat', target: 2, targetWord: 'ate' },
-  { context: 'ate fish', target: 0, targetWord: 'the' },
+  { context: 'the cat ate', target: 3, targetWord: 'fish' },
 ]
 
 const useMultiExample = ref(false)
@@ -360,12 +358,11 @@ const lossChartOption = computed(() => ({
     </div>
 
     <!-- Insights -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Try it:</strong>
+    <Callout variant="brand" title="Try it:">
       Click "Run 100 steps" and watch the loss curve drop sharply at first, then flatten.
       Notice how "fish" (the target) gains probability while the others fall.
       Then reset and try learning rate 2.0 — at high learning rates, the loss may oscillate or explode
       rather than converge. This is why choosing a good learning rate matters so much.
-    </div>
+    </Callout>
   </div>
 </template>

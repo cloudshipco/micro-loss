@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import katex from 'katex'
 import { useComputationGraph } from '../../composables/useComputationGraph'
 import { TOKEN_COLORS } from '../../engine/types'
+import FormulaLegend from '../ui/FormulaLegend.vue'
+import Callout from '../ui/Callout.vue'
 
 const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
@@ -93,6 +95,15 @@ function getEdgePath(edge: { from: string; to: string }): string {
 
 <template>
   <div class="space-y-6">
+
+    <FormulaLegend
+      latex="\textcolor{#34d399}{\frac{\partial L}{\partial z}} = \textcolor{#93c5fd}{\frac{\partial L}{\partial p}} \cdot \textcolor{#fbbf24}{\frac{\partial p}{\partial z}}"
+      :symbols="[
+        { symbol: '\\partial L / \\partial z', label: 'gradient w.r.t. logits (what we need)', color: '#34d399' },
+        { symbol: '\\partial L / \\partial p', label: 'how loss changes with probabilities', color: '#93c5fd' },
+        { symbol: '\\partial p / \\partial z', label: 'how probabilities change with logits', color: '#fbbf24' },
+      ]"
+    />
 
     <!-- Computation graph SVG -->
     <div class="rounded-lg bg-surface-light p-4">
@@ -284,12 +295,11 @@ function getEdgePath(edge: { from: string; to: string }): string {
         </div>
       </div>
 
-      <div class="mt-4 rounded-lg border border-positive/30 bg-positive/5 p-3 text-sm text-text-secondary">
-        <strong class="text-positive">Result:</strong>
+      <Callout variant="positive" title="Result:" class="mt-4">
         The chain rule collapses to <strong class="text-positive"><span v-html="km('p - 1')"></span></strong> for the target token.
         For non-target tokens, the derivation is similar but <span v-html="km('y = 0')"></span>, giving gradient = <strong class="text-negative"><span v-html="km('p')"></span></strong>.
         Combined: <strong class="text-text-primary"><span v-html="km('\\nabla L = p - y')"></span></strong>.
-      </div>
+      </Callout>
     </div>
 
     <!-- Gradient accumulation mini-demo -->
@@ -342,12 +352,11 @@ function getEdgePath(edge: { from: string; to: string }): string {
     </div>
 
     <!-- Summary callout -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Key takeaway:</strong>
+    <Callout variant="brand" title="Key takeaway:">
       Backpropagation is just the chain rule applied systematically to a computation graph.
       For our softmax + cross-entropy pipeline, the chain rule simplifies to <strong class="text-text-primary"><span v-html="km('p - y')"></span></strong> —
       the prediction minus the truth. Every neural network uses this exact algorithm to compute gradients,
       just with far more nodes in the graph.
-    </div>
+    </Callout>
   </div>
 </template>
