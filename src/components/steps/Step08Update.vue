@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 
@@ -10,6 +10,7 @@ import { computeCrossEntropyLoss } from '../../engine/loss'
 import { computeGradient } from '../../engine/gradient'
 import { computeUpdate } from '../../engine/update'
 import BarChart from '../charts/BarChart.vue'
+import LossLandscape from '../charts/LossLandscape.vue'
 import LearningRateSlider from '../ui/LearningRateSlider.vue'
 import FormulaLegend from '../ui/FormulaLegend.vue'
 import ValueDisplay from '../ui/ValueDisplay.vue'
@@ -24,7 +25,23 @@ use([ELineChart, GridComponent, TooltipComponent, CanvasRenderer])
 
 const state = createTutorialState()
 provideTutorialState(state)
-const { isAnimating, beforeLoss, afterLoss, animateStep } = useAnimatedUpdate(state)
+const { isAnimating, beforeLoss, afterLoss, animateStep: rawAnimateStep } = useAnimatedUpdate(state)
+
+function animateStep() {
+  // Record loss before the step
+  if (lossHistory.value.length === 0) {
+    lossHistory.value.push(state.loss.value)
+  }
+  rawAnimateStep()
+  // Record loss after animation completes (watch for isAnimating to become false)
+  const stop = watch(isAnimating, (val) => {
+    if (!val) {
+      trainStepCount.value++
+      lossHistory.value = [...lossHistory.value, state.loss.value]
+      stop()
+    }
+  })
+}
 
 const labels = computed(() => [...state.tokens])
 
@@ -32,15 +49,15 @@ const updatePreview = computed(() =>
   state.gradient.value.map(g => -state.learningRate.value * g)
 )
 
-// Multi-step training
-const lossHistory = ref<number[]>([])
+// Multi-step training — seed with initial loss so chart is always visible
+const lossHistory = ref<number[]>([state.loss.value])
 const trainStepCount = ref(0)
 const isTraining = ref(false)
 
 function resetTraining() {
-  lossHistory.value = []
-  trainStepCount.value = 0
   state.resetLogits()
+  lossHistory.value = [state.loss.value]
+  trainStepCount.value = 0
 }
 
 async function trainMultipleSteps(totalSteps = 20) {
@@ -219,16 +236,30 @@ const lossChartOption = computed(() => ({
     </div>
 
     <!-- Loss history chart -->
-    <div v-if="lossHistory.length > 1" class="space-y-2">
+    <div class="space-y-2">
       <div class="flex items-center justify-between">
         <h4 class="text-sm font-medium text-text-secondary">Loss over training steps</h4>
-        <span class="font-mono text-sm text-text-secondary">
+        <span v-if="lossHistory.length > 0" class="font-mono text-sm text-text-secondary">
           Step {{ trainStepCount }} &mdash; Loss: {{ lossHistory[lossHistory.length - 1].toFixed(4) }}
         </span>
       </div>
       <div class="h-48 w-full">
         <VChart :option="lossChartOption" autoresize class="h-full w-full" />
       </div>
+    </div>
+
+    <!-- Loss landscape -->
+    <div class="space-y-2">
+      <h4 class="text-sm font-medium text-text-secondary">Loss landscape</h4>
+      <p class="text-sm text-text-secondary">
+        This heatmap shows the loss for every combination of
+        <span class="font-mono text-text-primary" v-html="km('z_{\\text{ate}}')"></span> and
+        <span class="font-mono text-text-primary" v-html="km('z_{\\text{fish}}')"></span>,
+        with the other logits held fixed. Dark regions are low loss (the model is confident
+        about "fish"); bright regions are high loss. Click "Run descent" to watch gradient
+        descent trace a path downhill.
+      </p>
+      <LossLandscape :learning-rate="state.learningRate.value" />
     </div>
 
     <BarChart

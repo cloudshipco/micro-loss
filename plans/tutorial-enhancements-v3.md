@@ -90,24 +90,21 @@ Could also add a "Complete Pipeline" block at Step 16 or 20: the entire training
 
 ---
 
-## 4. Loss landscape visualisation
+## 4. ~~Loss landscape visualisation~~ — DONE
 
-**Status:** Not started.
+**Completed.** 2D heatmap in Step 14 showing loss surface for z_ate × z_fish with animated gradient descent path.
 
-**Goal:** A 2D contour plot showing the loss surface for two parameters, with a dot tracing the gradient descent path.
+### What was built
 
-**Where:** Step 14 (Gradient Descent Update) — adds geometric intuition to the algebraic update rule.
+**Component:** `src/components/charts/LossLandscape.vue`
+- 60×60 heatmap grid (z_the=0.1, z_cat=0.5 fixed; z_ate and z_fish vary from −1 to 7)
+- Dual-axis ECharts overlay: category axes for heatmap, value axes for line/scatter
+- Gradient descent path (40 steps) recomputes reactively on learning rate changes
+- Animated playback at 80ms/step with Run/Pause/Reset controls
+- Colour scale: deep purple (low loss) → amber (high loss)
+- Tooltip shows z_ate, z_fish, and loss on hover
 
-**Approach:**
-- Pick two logits (e.g. z_fish and z_ate) as axes
-- Compute loss at a grid of points (fix other logits)
-- Render as ECharts heatmap or contour
-- Animate the gradient descent path as a series of dots
-- Learning rate slider affects step size visibly
-
-This makes "going downhill" visceral — the user sees the dot sliding into the valley.
-
-**Complexity:** Medium. The grid computation is O(n²) but with n=50 it's trivial. ECharts heatmap supports this natively.
+**Integration:** Added to `Step08Update.vue` between the loss history chart and probability bar chart, with explanatory paragraph.
 
 ---
 
@@ -116,4 +113,4 @@ This makes "going downhill" visceral — the user sees the dot sliding into the 
 1. ~~**FormulaLegend reuse**~~ — DONE
 2. ~~**End-to-end demo**~~ — DONE
 3. **Python snippets** — moderate effort, high value for coder audience — next
-4. **Loss landscape** — nice-to-have, independent of others
+4. ~~**Loss landscape**~~ — DONE
