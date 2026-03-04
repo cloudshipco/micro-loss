@@ -190,19 +190,11 @@ const lossChartOption = computed(() => ({
 
 <template>
   <div class="space-y-6">
-    <!-- Overview -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">The full loop:</strong>
-      Real training isn't a single gradient step — it's millions of repetitions.
-      Each iteration: compute logits → softmax → loss → gradient → update logits → repeat.
-      Watch the loss curve fall as the model learns to predict "fish" from the example context.
-    </div>
-
     <!-- Controls row: learning rate + toggles -->
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-lg bg-surface-light p-4">
         <div class="flex items-center justify-between">
-          <h4 class="text-sm font-medium text-text-secondary">Learning rate &eta;</h4>
+          <h4 class="text-sm font-medium text-text-secondary">Learning rate η</h4>
           <span class="font-mono text-sm text-brand-light">{{ learningRate.toFixed(2) }}</span>
         </div>
         <input

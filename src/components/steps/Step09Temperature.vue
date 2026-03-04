@@ -70,8 +70,7 @@ const labels = computed(() => [...state.tokens])
     <!-- Real-world context -->
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">In practice:</strong>
-      When you use ChatGPT, Claude, or any LLM API, the <code class="rounded bg-surface-light px-1.5 py-0.5 text-xs">temperature</code>
-      parameter controls exactly this. Setting <code class="rounded bg-surface-light px-1.5 py-0.5 text-xs">temperature=0.2</code>
+      Setting <code class="rounded bg-surface-light px-1.5 py-0.5 text-xs">temperature=0.2</code>
       makes the model pick its top choice almost deterministically &mdash; great for factual queries and code.
       Setting <code class="rounded bg-surface-light px-1.5 py-0.5 text-xs">temperature=1.0</code> or higher lets
       lower-ranked tokens have a real chance of being sampled &mdash; producing more creative, surprising, and

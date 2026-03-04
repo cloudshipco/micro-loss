@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 import { useAnimatedUpdate } from '../../composables/useAnimatedUpdate'
 import { computeSoftmax } from '../../engine/softmax'
 import { computeCrossEntropyLoss } from '../../engine/loss'
@@ -132,11 +135,7 @@ const lossChartOption = computed(() => ({
 
 <template>
   <div class="space-y-6">
-    <MathBlock size="md">
-      <span class="text-text-secondary">z &larr; z &minus; </span>
-      <span class="text-brand-light">&eta;</span>
-      <span class="text-text-secondary">(p &minus; y)</span>
-    </MathBlock>
+    <MathBlock latex="z \leftarrow z - \color{#6366f1}{\eta}(p - y)" size="md" />
 
     <LearningRateSlider />
 
@@ -147,7 +146,7 @@ const lossChartOption = computed(() => ({
           <tr class="border-b border-surface-lighter text-text-secondary">
             <th class="py-2 text-left font-medium">Token</th>
             <th class="py-2 text-right font-medium">Current z</th>
-            <th class="py-2 text-right font-medium">&minus;&eta; &middot; grad</th>
+            <th class="py-2 text-right font-medium" v-html="km('-\\eta \\cdot \\text{grad}')"></th>
             <th class="py-2 text-right font-medium">New z</th>
           </tr>
         </thead>

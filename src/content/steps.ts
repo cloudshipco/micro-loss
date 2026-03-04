@@ -1,9 +1,22 @@
+import katex from 'katex'
+
 export interface StepDefinition {
   number: number
   title: string
   subtitle: string
   description: string
   math?: string
+}
+
+/** Render a LaTeX string as display-mode KaTeX HTML, wrapped in a styled block */
+function math(latex: string): string {
+  const html = katex.renderToString(latex, { throwOnError: false, displayMode: true })
+  return `<div class="my-4 text-center">${html}</div>`
+}
+
+/** Render a LaTeX string as inline KaTeX HTML */
+function imath(latex: string): string {
+  return katex.renderToString(latex, { throwOnError: false, displayMode: false })
 }
 
 export const steps: StepDefinition[] = [
@@ -13,7 +26,7 @@ export const steps: StepDefinition[] = [
     number: 1,
     title: 'The Dataset',
     subtitle: 'The prediction task and training data',
-    description: `<p>The goal of language modelling is to predict the next word. Given a sequence of words — <em>"the cat ate _"</em> — what comes next? To learn this, we need an enormous collection of text: billions of pages from the internet, books, and other sources. Each passage provides many examples of the pattern: a sequence of words followed by a known continuation. A <strong>token</strong> is the technical term for a word or word-fragment — the smallest unit the system works with.</p>
+    description: `<p>The goal of language modelling is to predict the next word. Given a sequence of words — <em>"the cat ate _"</em> — what comes next? To learn this, we need training data: billions of pages from the internet, books, and other sources. Each passage provides many examples of the pattern: a sequence of words followed by a known continuation. A <strong>token</strong> is the technical term for a word or word-fragment — the smallest unit the system works with.</p>
 <p>We're using a simplified vocabulary of just four tokens: <strong>the</strong>, <strong>cat</strong>, <strong>ate</strong>, and <strong>fish</strong>. Real systems like GPT-4 use ~100,000 tokens covering whole words, fragments of longer words, punctuation, and special characters. The math is identical; only the scale differs.</p>
 <p>Each training example is a <strong>context → target</strong> pair: a sequence of input tokens (the context) and the single correct next token (the target). Training consists of millions of these pairs, each one asking: <em>"given this context, what comes next?"</em></p>`,
   },
@@ -30,8 +43,8 @@ export const steps: StepDefinition[] = [
     number: 3,
     title: 'The Model',
     subtitle: 'A function with learnable parameters',
-    description: `<p>A <strong>model</strong> is a program that maps inputs to outputs. Ours takes a sequence of token IDs and produces one <strong>score</strong> per vocabulary token — a single number measuring how strongly the model associates the current context with that token as the next one. A high score for "fish" means the model currently thinks "fish" is a likely continuation; a low score means it thinks "fish" is unlikely. Initially those scores are arbitrary — the model starts with random internal numbers. Training gradually adjusts those numbers until the scores become useful predictions.</p>
-<p>Those adjustable numbers are called <strong>parameters</strong>. A modern language model has billions of them, organised into <strong>matrices</strong> (rectangular grids of numbers). When the model runs, those matrices multiply and add with the input data in sequence to produce the output scores. During training, each parameter is nudged up or down by a tiny amount to make the model's predictions better.</p>
+    description: `<p>A <strong>model</strong> is a program that maps inputs to outputs. Ours takes a sequence of token IDs and produces one <strong>score</strong> per vocabulary token — a single number measuring how strongly the model associates the current context with that token as the next one. A high score for "fish" means the model currently rates "fish" as a likely continuation; a low score means it rates "fish" as unlikely. Initially those scores are arbitrary — the model starts with random internal numbers. Training gradually adjusts those numbers until the scores become useful predictions.</p>
+<p>Those adjustable numbers are called <strong>parameters</strong> — concretely, each one is a single floating-point number like <code>0.3471</code> stored in memory. A modern language model has billions of them, organised into <strong>matrices</strong> (rectangular grids of numbers). When the model runs, those matrices multiply and add with the input data in sequence to produce the output scores. During training, each parameter is nudged up or down by a tiny amount to make the model's predictions better.</p>
 <p>The particular arrangement of matrix operations used by GPT-style models is called a <strong>transformer</strong>, introduced in the 2017 paper <em>"Attention Is All You Need"</em> (Vaswani et al.). Unlike earlier designs that had to process tokens sequentially (one at a time), the transformer's structure allows parallel computation: calculations for different positions in the input are largely independent, so modern hardware (GPUs) can run them simultaneously — which is a large part of why training large models is feasible at all.</p>`,
   },
   {
@@ -43,7 +56,7 @@ export const steps: StepDefinition[] = [
 <p>The forward pass has three sequential stages:</p>
 <ol>
 <li><strong>Embedding lookup</strong> — each token ID is used to look up a row from the token embedding matrix — a dictionary lookup, not a computation. A position embedding is added to encode word order.</li>
-<li><strong>Layers</strong> — each layer is a fixed sequence of operations — attention, feedforward network, normalisation — that transforms every token's vector, allowing information to flow between positions. Our micro-model has 1 layer; GPT-4 has roughly 120. This tutorial treats the layer internals as a black box.</li>
+<li><strong>Layers</strong> — each layer is a fixed sequence of operations — attention, feedforward network, normalisation — that transforms every token's vector (its list of numbers), allowing information to flow between positions. Our micro-model has 1 layer; GPT-4 has roughly 120. This tutorial treats the layer internals as a black box.</li>
 <li><strong>Extract</strong> — after all layers, the vector at the final position is extracted. This single vector — the <strong>context vector</strong> — is what gets passed forward to produce scores.</li>
 </ol>`,
   },
@@ -53,7 +66,8 @@ export const steps: StepDefinition[] = [
     subtitle: 'The dot product that produces logits',
     description: `<p>The context vector is not the final output. It still needs to be compared against every vocabulary token to produce one score per token. This comparison is the precise handoff point between the transformer's internals and the rest of this tutorial.</p>
 <p>Each vocabulary token also has a learned vector — a <strong>vocabulary embedding</strong>. The model computes the <strong>dot product</strong> between the context vector and each vocabulary embedding. A dot product multiplies each pair of corresponding numbers from two vectors and sums the results: a single number that measures how aligned — how similar in direction — the two vectors are.</p>
-<p>One dot product per vocabulary token gives one score per token. Those scores are called <strong>logits</strong>. A high dot product means the model's context vector is pointing in a similar direction to that token's vocabulary vector — the model currently associates this context with that token. At the start of training the vectors are random and the logits are noise; training steers the vectors so the dot products become meaningful.</p>`,
+<p>One dot product per vocabulary token gives one score per token. Those scores are called <strong>logits</strong>. A high dot product means the model's context vector is pointing in a similar direction to that token's vocabulary vector — the model currently associates this context with that token. At the start of training the vectors are random and the logits are noise; training steers the vectors so the dot products become meaningful.</p>
+<p>In the formula, ${imath('\\mathbf{h}')} is the context vector, ${imath('\\mathbf{w}_i')} is the vocabulary embedding for token ${imath('i')}, and ${imath('z_i')} is the resulting logit — the score for token ${imath('i')}.</p>`,
     math: 'z_i = \\mathbf{h}^T \\mathbf{w}_i',
   },
 
@@ -72,15 +86,15 @@ export const steps: StepDefinition[] = [
     title: 'Exponentiation',
     subtitle: 'From log-space to positive values',
     description: `<p>We need to convert raw scores into something that behaves like probabilities. The first problem: logits can be negative, but probabilities can't be. We need a function that maps <em>any</em> real number to a positive number.</p>
-<p>Why not just use <strong>|z|</strong> (absolute value)? Because −3 and +3 would become equally likely — destroying the ordering the model learned. What about <strong>max(0, z)</strong>? Then all negative logits collapse to 0, losing information.</p>
-<p>Instead, we use <strong>e<sup>z</sup></strong> — Euler's number (~2.718) raised to the power of z. This is the right choice for four reasons:</p>
+<p>Why not just use ${imath('|z|')} (absolute value)? Because ${imath('-3')} and ${imath('+3')} would become equally likely — destroying the ordering the model learned. What about ${imath('\\max(0, z)')}? Then all negative logits collapse to 0, losing information.</p>
+<p>Instead, we use ${imath('e^z')} — Euler's number (~2.718) raised to the power of ${imath('z')}. This works because:</p>
 <ol>
-<li><strong>Always positive</strong> — e<sup>z</sup> &gt; 0 for any z, even very negative ones</li>
-<li><strong>Preserves ordering</strong> — if z₁ &gt; z₂, then e<sup>z₁</sup> &gt; e<sup>z₂</sup></li>
+<li><strong>Always positive</strong> — ${imath('e^z > 0')} for any ${imath('z')}, even very negative ones</li>
+<li><strong>Preserves ordering</strong> — if ${imath('z_1 > z_2')}, then ${imath('e^{z_1} > e^{z_2}')}</li>
 <li><strong>Amplifies differences</strong> — a slightly higher logit gets <em>exponentially</em> more weight, which is what we want: the model's top choice should dominate</li>
-<li><strong>Clean derivatives</strong> — the derivative (rate of change) of e<sup>z</sup> is simply e<sup>z</sup> itself, which keeps the math elegant when we later compute how to adjust the model (Steps 12–13)</li>
+<li><strong>Clean derivatives</strong> — the derivative (rate of change) of ${imath('e^z')} is simply ${imath('e^z')} itself, which keeps the math elegant when we later compute how to adjust the model (Steps 12–13)</li>
 </ol>
-<p>Here's the key connection: because we use e<sup>z</sup>, a <strong>logit difference maps to a probability ratio</strong>. If fish's logit is 1 higher than ate's, then fish is e<sup>1</sup> ≈ 2.7× more probable. A difference of 2 means e<sup>2</sup> ≈ 7.4× more probable. This is why logits are said to live in "log-space" — differences in logits correspond to multiplicative ratios in probability.</p>`,
+<p>Here's the key connection: because we use ${imath('e^z')}, a <strong>logit difference maps to a probability ratio</strong>. If fish's logit is 1 higher than ate's, then fish is ${imath('e^1 \\approx 2.7')}× more probable. A difference of 2 means ${imath('e^2 \\approx 7.4')}× more probable. This is why logits are said to live in "log-space" — differences in logits correspond to multiplicative ratios in probability.</p>`,
     math: 'e^{z_i}',
   },
   {
@@ -88,7 +102,7 @@ export const steps: StepDefinition[] = [
     title: 'Normalization',
     subtitle: 'Softmax produces a probability distribution',
     description: `<p>A valid probability distribution needs two properties: <strong>(1) every value is non-negative</strong>, and <strong>(2) they all sum to 1</strong>. After exponentiation we have property (1). To get property (2), we simply divide each exponentiated value by the total.</p>
-<p>This two-step process — exponentiate then normalize — is called <strong>softmax</strong>. It's "soft" because it approximates the "hard" maximum: taking the single highest-scoring token and giving it 100% (called <strong>argmax</strong> — the argument that maximises the score). Instead of that winner-takes-all approach, softmax spreads probability across all tokens but concentrates most of it on the highest logit. The model's raw preference becomes a clean percentage: "I'm 50.6% confident the next word is <em>fish</em>."</p>
+<p>This two-step process — exponentiate then normalize — is called <strong>softmax</strong>. It's "soft" because it approximates the "hard" maximum: taking the single highest-scoring token and giving it 100% (called <strong>argmax</strong> — the argument that maximises the score). Instead of that winner-takes-all approach, softmax spreads probability across all tokens but concentrates most of it on the highest logit. The model's raw preference becomes a clean percentage — 50.6% for <em>fish</em> as the next token.</p>
 <p>Softmax enforces <strong>competition</strong>: raising one token's logit steals probability from all the others. And it's <strong>translation-invariant</strong>: adding the same constant to every logit doesn't change the output at all. Use the shift buttons below to verify — only relative differences matter.</p>`,
     math: 'p_i = e^{z_i} / \\sum_j e^{z_j}',
   },
@@ -97,37 +111,45 @@ export const steps: StepDefinition[] = [
     title: 'Target Token',
     subtitle: 'What the model should have predicted',
     description: `<p>In our training data, the full sentence is <em>"the cat ate <strong>fish</strong>."</em> We know the answer: the next word after "ate" is "fish." But how do we tell the math what the correct answer is?</p>
-<p>We encode it as a <strong>one-hot vector</strong> — a list of numbers that's 0 everywhere except for a 1 at the correct position. "One-hot" because exactly one position is "hot" (activated). For our example: y = [0, 0, 0, 1] (the=0, cat=0, ate=0, fish=1).</p>
-<p>This gives us a clean format for measuring error. The model predicts a distribution <strong>p</strong> (like [0.10, 0.15, 0.24, 0.51]). The truth is <strong>y</strong> = [0, 0, 0, 1]. The gap between p and y is exactly what training will try to close — pushing p closer to y with each step.</p>`,
+<p>We encode it as a <strong>one-hot vector</strong> called ${imath('y')} — a list of numbers that's 0 everywhere except for a 1 at the correct position. "One-hot" because exactly one position is "hot" (activated). For our example: ${imath('y = [0, 0, 0, 1]')} (the=0, cat=0, ate=0, fish=1).</p>
+<p>This gives us a clean format for measuring error. The model outputs a probability distribution ${imath('p')} (like ${imath('[0.10, 0.15, 0.24, 0.51]')}). The truth is the one-hot vector ${imath('y = [0, 0, 0, 1]')}. The gap between ${imath('p')} and ${imath('y')} is exactly what training will try to close — pushing ${imath('p')} closer to ${imath('y')} with each step.</p>`,
     math: 'y_i = \\begin{cases} 1 & \\text{if } i = \\text{target} \\\\ 0 & \\text{otherwise} \\end{cases}',
   },
   {
     number: 10,
     title: 'Cross-Entropy Loss',
     subtitle: 'Measuring prediction quality',
-    description: `<p>We need a single number — a <strong>"loss"</strong> — that's small when the prediction is good and large when it's bad. The cross-entropy loss is simply <strong>−log(p<sub>target</sub>)</strong>: the negative log of the probability assigned to the correct answer. The name comes from information theory (Claude Shannon, 1948): cross-entropy measures the inefficiency of using one distribution to encode events from another.</p>
-<p>Why −log and not something simpler? Consider what happens at different confidence levels:</p>
-<ul>
-<li>Model says p = 0.9 (quite confident, correct): loss = 0.105. <em>Small penalty — good job.</em></li>
-<li>Model says p = 0.5 (coin flip): loss = 0.693. <em>Moderate penalty — you should know better.</em></li>
-<li>Model says p = 0.01 (almost certain it was wrong): loss = 4.605. <em>Enormous penalty — catastrophic mistake.</em></li>
-</ul>
-<p>A simpler measure like <strong>(1 − p)</strong> gives only 0.1 vs 0.99 for those cases — it treats moderate and catastrophic mistakes too similarly. The logarithm's explosive growth near zero is exactly what we want: <strong>confidently wrong predictions must be punished severely</strong>, otherwise the model would never learn to avoid them.</p>`,
-    math: 'L = -\\log p_y',
+    description: `<p>The model now outputs a probability distribution — but how does training know whether that distribution is good or bad? We need to condense the entire prediction into a <strong>single number</strong> that measures quality. Why a single number? Because the training algorithm (Steps 12–14) needs one value to improve: it adjusts every parameter in the direction that makes this number smaller. No single number, no systematic way to improve.</p>
+<p>That number is called the <strong>loss</strong> — small when the prediction is good, large when it's bad. The particular loss function used here is called <strong>cross-entropy loss</strong>:</p>
+${math('L = -\\log(p_{\\text{target}})')}
+<p>Here ${imath('p_{\\text{target}}')} means "the probability the model gave to the correct token." In our example, the correct token is "fish." If the model assigned fish a probability of 0.51, then ${imath('p_{\\text{target}} = 0.51')}. A perfect prediction would be ${imath('p_{\\text{target}} = 1.0')}.</p>
+<div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary my-4"><strong class="text-text-primary">A note on "log":</strong> Throughout machine learning, "log" means the <strong class="text-text-primary">natural logarithm</strong> — base ${imath('e')}, sometimes written "ln" in school maths. Any base would work — ${imath('\\log_2')} or ${imath('\\log_{10}')} would only differ by a constant multiplier. The convention is base ${imath('e')} because it simplifies the derivative to a clean ${imath('1/p')}, which matters when computing gradients in Step 12.</div>
+<p>This formula works because softmax (Step 8) already guaranteed that ${imath('p_{\\text{target}}')} is between 0 and 1. That matters: the logarithm of any number between 0 and 1 is negative, so the negation always produces a positive loss. If the values could exceed 1, ${imath('-\\log')} would go negative — the loss would <em>reward</em> bad predictions.</p>
+<p>The general cross-entropy formula is a sum over all tokens:</p>
+${math('L = -\\sum_i y_i \\log(p_i)')}
+<p>But since ${imath('y')} is a one-hot vector (Step 9), every term where ${imath('y_i = 0')} vanishes. Only the target token's term survives, giving us the simplified ${imath('-\\log(p_{\\text{target}})')}.</p>
+<p>When ${imath('p_{\\text{target}} = 1.0')}, ${imath('-\\log(1.0) = 0')} — no loss, perfect prediction. As ${imath('p_{\\text{target}}')} drops toward 0, the loss grows without bound. <strong class="text-text-primary">The loss is effectively asking: "how far is the model's confidence in the correct answer from the ideal of 100%?"</strong> </p>
+<div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary my-4"><strong class="text-text-primary">Why "cross-entropy"?</strong> The name comes from information theory (Claude Shannon, 1948). It measures the cost of using one distribution (the model's prediction ${imath('p')}) to represent events that actually follow another distribution (the truth ${imath('y')}). The worse ${imath('p')} matches ${imath('y')}, the higher the cost. This is <em>not</em> symmetric — it specifically penalises the model for being wrong about reality, not the other way around.</div>
+<p>Why ${imath('-\\log')} and not something simpler like ${imath('1 - p')}? Compare the two at different confidence levels:</p>
+<table class="w-full text-sm border-collapse my-3"><thead><tr class="text-left text-text-secondary"><th class="pb-2 pr-4">${imath('p_{\\text{target}}')}</th><th class="pb-2 pr-4">${imath('1 - p')}</th><th class="pb-2 pr-4">${imath('-\\log(p)')}</th><th class="pb-2">Meaning</th></tr></thead><tbody class="font-mono"><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4 text-positive font-bold">1.00</td><td class="py-1.5 pr-4">0.00</td><td class="py-1.5 pr-4 text-positive font-bold">0.00</td><td class="py-1.5 font-sans text-text-secondary">Perfect prediction</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4">0.90</td><td class="py-1.5 pr-4">0.10</td><td class="py-1.5 pr-4">0.11</td><td class="py-1.5 font-sans text-text-secondary">Confident and correct</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4">0.50</td><td class="py-1.5 pr-4">0.50</td><td class="py-1.5 pr-4">0.69</td><td class="py-1.5 font-sans text-text-secondary">Coin flip</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4">0.01</td><td class="py-1.5 pr-4">0.99</td><td class="py-1.5 pr-4 text-negative font-bold">4.61</td><td class="py-1.5 font-sans text-text-secondary">Confident and wrong</td></tr><tr class="border-t border-surface-lighter"><td class="py-1.5 pr-4 text-negative font-bold">0.00</td><td class="py-1.5 pr-4">1.00</td><td class="py-1.5 pr-4 text-negative font-bold">${imath('\\infty')}</td><td class="py-1.5 font-sans text-text-secondary">Completely wrong</td></tr></tbody></table>
+<p>With ${imath('1 - p')}, going from "coin flip" to "confident and wrong" only doubles the penalty (0.50 → 0.99). With ${imath('-\\log')}, it jumps nearly 7× (0.69 → 4.61). The logarithm penalises low-confidence predictions far more steeply — which is exactly what training needs, because a model that's confident and wrong has the most to fix.</p>
+<p><strong>Reading the table:</strong> a helpful identity is:</p>
+${math('-\\log(0.5) = \\ln(2) \\approx 0.693')}
+<p>A coin-flip prediction costs about 0.69 — the loss when the model assigns equal probability to two options. Halving the probability again adds another ${imath('\\ln(2)')} to the loss: ${imath('-\\log(0.25) \\approx 1.39')}, ${imath('-\\log(0.125) \\approx 2.08')}, and so on. Each halving adds exactly 0.693.</p>
+<p>Cross-entropy is not specific to language models — it's the standard loss function for <strong>classification</strong> across all of machine learning. The formula is always the same: ${imath('-\\log')}(probability assigned to the correct class). Image classifiers (like ResNet) use it to distinguish cats from dogs. Medical systems use it to classify scans as cancerous or benign. Recommendation engines use it to predict whether a user will click. Whenever a model picks one option from many, cross-entropy measures how well it picked.</p>`,
   },
   {
     number: 11,
     title: 'Loss in Logit Form',
     subtitle: 'Two competing forces',
-    description: `<p>Let's substitute the softmax formula into the loss and simplify. Since p<sub>y</sub> = e<sup>z<sub>y</sub></sup> / Σe<sup>z<sub>j</sub></sup>, taking −log gives us:</p>
-<p><strong>L = −z<sub>y</sub> + log Σ e<sup>z<sub>j</sub></sup></strong></p>
+    description: `<p>Let's substitute the softmax formula into the loss and simplify. Since ${imath('p_y = e^{z_y} / \\sum e^{z_j}')}, taking ${imath('-\\log')} gives us:</p>
+${math('L = -z_y + \\log \\sum_j e^{z_j}')}
 <p>This reveals the loss as a tug-of-war between two forces:</p>
 <ol>
-<li><strong class="text-negative">−z<sub>y</sub></strong> (raise the correct token) — Making the target's logit bigger directly lowers the loss. This is the "boost the right answer" force.</li>
-<li><strong class="text-warning">log Σ e<sup>z<sub>j</sub></sup></strong> (suppress competitors) — This term grows when <em>any</em> logit is large. Lowering competitor logits shrinks this term. This is the "quiet the wrong answers" force.</li>
+<li><strong class="text-negative">${imath('-z_y')}</strong> (raise the correct token) — Making the target's logit bigger directly lowers the loss. This is the "boost the right answer" force.</li>
+<li><strong class="text-warning">${imath('\\log \\sum e^{z_j}')}</strong> (suppress competitors) — This term grows when <em>any</em> logit is large. Lowering competitor logits shrinks this term. This is the "quiet the wrong answers" force.</li>
 </ol>
 <p>Training balances both: raise the target while suppressing the competition. You can't just make the target logit infinity — the log-sum-exp term would grow too. The optimal strategy is to make the target's logit large <em>relative</em> to the others.</p>`,
-    math: 'L = -z_y + \\log \\sum_j e^{z_j}',
   },
 
   // ── STEP 12: backpropagation (NEW) ─────────────────────────────────────
@@ -136,7 +158,9 @@ export const steps: StepDefinition[] = [
     title: 'Backpropagation',
     subtitle: 'How gradients are computed',
     description: `<p>We know the loss. Now we need to compute how each parameter should change to reduce it. The algorithm that does this is called <strong>backpropagation</strong> — short for "backward propagation of errors." While the mathematical idea dates back further, the algorithm was popularised for neural networks by Rumelhart, Hinton, and Williams in their 1986 <em>Nature</em> paper <em>"Learning representations by back-propagating errors."</em></p>
-<p>The idea: the forward pass is a chain of operations (exponentiate → sum → divide → log → negate). Each operation has a simple, known <strong>derivative</strong> — a measure of how much the output changes when the input changes by a tiny amount. The <strong>chain rule</strong> from calculus says: to find the derivative of a chain of functions, multiply the derivatives of each link. Backpropagation applies this rule systematically, walking backward through the computation graph — from loss to logits — multiplying local derivatives at each step.</p>
+<p>Backpropagation answers one question: <em>"which knob should I turn, and by how much, to reduce the loss?"</em> It works by breaking this big question into many tiny questions — one per operation in the computation. Each operation is simple enough to answer directly (e.g., "if I increase the input to exp, how much does the output change?"). Then it chains the answers together.</p>
+<p>That chaining is the <strong>chain rule</strong> from calculus: if ${imath('f')} affects ${imath('g')}, and ${imath('g')} affects ${imath('h')}, then to find how ${imath('f')} affects ${imath('h')}, multiply "how ${imath('f')} affects ${imath('g')}" by "how ${imath('g')} affects ${imath('h')}." Think of exchange rates: if £1 = $1.30 and $1 = ¥150, then £1 = 1.30 × 150 = ¥195. Each node in the graph is one "exchange" — backpropagation multiplies them together, link by link.</p>
+<p>A crucial detail: backpropagation computes gradients for <strong>all</strong> parameters, not just one. In our model, all four token logits receive an update. The gradient ${imath('\\nabla L = p - y')} (Step 13) is non-zero for every token: the correct token gets pushed up (its gradient is negative), and all incorrect tokens get pushed down (their gradients are positive, proportional to how much probability they "stole").</p>
 <p>The <strong>computation graph</strong> below — a diagram of the chain of operations, drawn as connected nodes — traces the path for the target token (cat). Click "Forward" to see values propagate left→right, then "Backward" to see gradients flow right→left. At each node, the gradient flowing in is multiplied by the local derivative and passed to the inputs. When the chain rule reaches the logits, it produces the gradient we need for the update step.</p>`,
     math: '\\frac{\\partial L}{\\partial z} = \\frac{\\partial L}{\\partial p} \\cdot \\frac{\\partial p}{\\partial z}',
   },
@@ -146,24 +170,25 @@ export const steps: StepDefinition[] = [
     number: 13,
     title: 'The Gradient',
     subtitle: 'The elegant p − y',
-    description: `<p>In the previous step you saw how backpropagation walks backward through the computation, multiplying local derivatives via the chain rule. When we apply this to our cross-entropy loss with softmax, the algebra simplifies to something remarkably elegant: <strong>∇L = p − y</strong>.</p>
+    description: `<p>In the previous step you saw how backpropagation walks backward through the computation, multiplying local derivatives via the chain rule. When we apply this to our cross-entropy loss with softmax, the algebra simplifies to a remarkably clean result:</p>
+${math('\\nabla_z L = p - y')}
 <p>The gradient for each token is simply its predicted probability minus its target value. Unpack what this means:</p>
 <ul>
-<li><strong>Correct token</strong> (y = 1): gradient = p − 1. Since p &lt; 1, this is always <em>negative</em>. Subtracting a negative gradient means the logit goes <strong>up</strong> — exactly what we want.</li>
-<li><strong>Wrong tokens</strong> (y = 0): gradient = p − 0 = p. Always <em>positive</em>. Subtracting a positive gradient pushes the logit <strong>down</strong>. And the more probability a wrong token "stole," the harder it gets pushed.</li>
+<li><strong>Correct token</strong> (${imath('y = 1')}): gradient ${imath('= p - 1')}. Since ${imath('p < 1')}, this is always <em>negative</em>. Subtracting a negative gradient means the logit goes <strong>up</strong> — exactly what we want.</li>
+<li><strong>Wrong tokens</strong> (${imath('y = 0')}): gradient ${imath('= p - 0 = p')}. Always <em>positive</em>. Subtracting a positive gradient pushes the logit <strong>down</strong>. And the more probability a wrong token captured, the harder it gets pushed.</li>
 </ul>
-<p>This is one of the most beautiful results in machine learning: the entire gradient is just the gap between prediction and truth. No complicated derivatives — just p − y.</p>`,
-    math: '\\nabla_{z} L = p - y',
+<p>The entire gradient is just the gap between prediction and truth. No complicated derivatives — just ${imath('p - y')}.</p>`,
   },
   {
     number: 14,
     title: 'Gradient Descent Update',
     subtitle: 'Watch the logits shift',
-    description: `<p>Now we apply the gradient to actually improve the logits. The update rule is: <strong>z ← z − η(p − y)</strong>, where η (eta) is the <strong>learning rate</strong> — a small number that controls how big each step is.</p>
+    description: `<p>Now we apply the gradient to actually improve the logits. The update rule is:</p>
+${math('z \\leftarrow z - \\eta(p - y)')}
+<p>The symbol ${imath('\\eta')} is the lowercase Greek letter <strong>eta</strong> — the conventional symbol for learning rate in machine learning, just as ${imath('\\pi')} is the conventional symbol for the ratio of circumference to diameter. The <strong>learning rate</strong> is a small positive number (typically between 0.001 and 1.0) that controls how much we adjust the parameters in each step.</p>
 <p>Why subtract? Because the gradient points in the direction of <em>increasing</em> loss. We want to go the opposite direction — <em>downhill</em> — so we subtract.</p>
-<p>Why not take huge steps? Too large a learning rate overshoots the minimum and can make loss <em>increase</em>. Too small and training takes forever. Finding the right η is one of the practical arts of deep learning.</p>
+<p>Why not take huge steps? A large ${imath('\\eta')} means big steps — faster but riskier, potentially overshooting the minimum and making the loss <em>increase</em>. A small ${imath('\\eta')} means tiny steps — slower but safer. Finding the right balance is one of the practical arts of deep learning.</p>
 <p>Click "Apply Step" to see one gradient descent update, or use "Train" to watch the loss converge over many steps. Each step recomputes softmax, loss, and gradient from the new logits — the full pipeline you've learned, repeated over and over.</p>`,
-    math: 'z \\leftarrow z - \\eta (p - y)',
   },
 
   // ── STEP 15: Adam optimizer (NEW) ──────────────────────────────────────
@@ -174,7 +199,7 @@ export const steps: StepDefinition[] = [
     description: `<p>Basic gradient descent uses the same fixed learning rate for every parameter at every step. In practice, this is too crude: some parameters need large steps and others need tiny ones, and noisy gradients cause zig-zagging.</p>
 <p><strong>Adam</strong> (Adaptive Moment Estimation) fixes both problems. It maintains two running averages for each parameter: (1) the <strong>momentum</strong> — an exponentially weighted average of past gradients, which smooths out noise and maintains direction, and (2) the <strong>second moment</strong> — an average of squared gradients, which measures how large gradients typically are for this parameter.</p>
 <p>The update divides the momentum by the square root of the second moment. Parameters with consistently large gradients get automatically smaller steps; parameters with small gradients get relatively larger steps. This is why Adam converges faster and more reliably than SGD — especially at learning rates where SGD would oscillate wildly.</p>
-<p>Nearly every modern language model is trained with Adam or a close variant (AdamW adds weight decay — a technique that slowly shrinks parameters toward zero to prevent overfitting). Adam was proposed by Kingma and Ba in 2015, and the default hyperparameters (β₁ = 0.9, β₂ = 0.999) work well across a remarkably wide range of problems.</p>`,
+<p>Nearly every modern language model is trained with Adam or a close variant (AdamW adds weight decay — a technique that slowly shrinks parameters toward zero to prevent overfitting). Adam was proposed by Kingma and Ba in 2015, and the default hyperparameters (${imath('\\beta_1 = 0.9')}, ${imath('\\beta_2 = 0.999')}) work well across a wide range of problems.</p>`,
     math: '\\theta \\leftarrow \\theta - \\alpha \\cdot \\hat{m} / (\\sqrt{\\hat{v}} + \\epsilon)',
   },
 
@@ -193,14 +218,14 @@ export const steps: StepDefinition[] = [
     number: 17,
     title: 'Temperature',
     subtitle: 'Controlling distribution sharpness',
-    description: `<p>Temperature τ scales logits before softmax: divide all logits by τ, then apply softmax as usual. This single parameter controls how "sharp" or "flat" the output distribution is.</p>
+    description: `<p>Temperature ${imath('\\tau')} scales logits before softmax: divide all logits by ${imath('\\tau')}, then apply softmax as usual. This single parameter controls how "sharp" or "flat" the output distribution is.</p>
 <ul>
-<li><strong>Low temperature</strong> (τ → 0): Differences between logits are amplified. The highest logit dominates — the distribution becomes almost argmax. The model picks its top choice with near-certainty.</li>
-<li><strong>τ = 1</strong>: Standard softmax. The model's natural confidence level.</li>
-<li><strong>High temperature</strong> (τ → ∞): All logits are divided by a huge number, becoming nearly equal. The distribution flattens toward uniform — every token is equally likely.</li>
+<li><strong>Low temperature</strong> (${imath('\\tau \\to 0')}): Differences between logits are amplified. The highest logit dominates — the distribution becomes almost argmax, concentrating nearly all probability on the top-scoring token.</li>
+<li>${imath('\\tau = 1')}: Standard softmax — no scaling applied.</li>
+<li><strong>High temperature</strong> (${imath('\\tau \\to \\infty')}): All logits are divided by a large number, becoming nearly equal. The distribution flattens toward uniform — every token is equally likely.</li>
 </ul>
-<p>When you use ChatGPT or Claude's API and set <code>temperature=0.7</code>, this is exactly what's happening: the model's logits are divided by 0.7, making the distribution slightly sharper than normal. Lower temperature = more focused, deterministic text. Higher temperature = more creative, surprising text.</p>
-<p>Notice this connects to something from Step 6: logits [2, 1, 0, −1] and [20, 10, 0, −10] have the same ranking, but the second set produces a much sharper distribution. Scale affects certainty — and temperature is precisely the knob that controls that scale.</p>`,
+<p>When you use ChatGPT or Claude's API and set <code>temperature=0.7</code>, this is exactly what's happening: the logits are divided by 0.7, making the distribution slightly sharper than normal. Lower temperature = more focused, deterministic text. Higher temperature = more creative, surprising text.</p>
+<p>Notice this connects to something from Step 6: logits ${imath('[2, 1, 0, -1]')} and ${imath('[20, 10, 0, -10]')} have the same ranking, but the second set produces a much sharper distribution. Scale affects certainty — and temperature is precisely the knob that controls that scale.</p>`,
     math: 'p_i = e^{z_i/\\tau} / \\sum_j e^{z_j/\\tau}',
   },
   {
@@ -208,9 +233,9 @@ export const steps: StepDefinition[] = [
     title: 'Attention Connection',
     subtitle: 'Softmax in the attention mechanism',
     description: `<p>You've now seen the full pipeline: logits → softmax → loss → gradient → update. But softmax plays <em>another</em> crucial role in modern neural networks — inside the <strong>attention mechanism</strong>.</p>
-<p>In attention, each word computes a <strong>query</strong> ("what am I looking for?") and every word offers a <strong>key</strong> ("here's what I contain"). Their <strong>dot product</strong> Q·K — the sum of element-wise multiplications of two vectors, a standard measure of similarity — produces a single score per pair. Sound familiar? These scores play the same mathematical role as logits — raw unbounded values that softmax converts into a distribution.</p>
+<p>In attention, each word computes a <strong>query</strong> ("what am I looking for?") and every word offers a <strong>key</strong> ("here's what I contain"). Their <strong>dot product</strong> ${imath('Q \\cdot K')} — the sum of element-wise multiplications of two vectors, a standard measure of similarity — produces a single score per pair. These scores play the same mathematical role as logits — raw unbounded values that softmax converts into a distribution.</p>
 <p>Softmax converts these scores into <strong>attention weights</strong> that sum to 1, determining how much each word contributes to the output. Same exponentiate-then-normalize machinery, different inputs.</p>
-<p>In language prediction, there's <em>one score per vocabulary token</em>. In attention, there's <em>one score per token pair</em>. Same pipeline &mdash; <strong>scores → softmax → weighted choice</strong> &mdash; different meaning. Everything you've learned applies directly.</p>`,
+<p>In language prediction, there's <em>one score per vocabulary token</em>. In attention, there's <em>one score per token pair</em>. Same pipeline — <strong>scores → softmax → weighted choice</strong> — different meaning. Everything you've learned applies directly.</p>`,
     math: '\\text{Attention} = \\text{softmax}(QK^T)V',
   },
   {
@@ -219,7 +244,7 @@ export const steps: StepDefinition[] = [
     subtitle: 'Generating text token by token',
     description: `<p>After training, the model is ready to generate text. Given a prompt, it runs the forward pass and produces logits for the next token. Instead of checking against a target (there is none — we're generating, not training), it <strong>samples</strong> from the resulting probability distribution.</p>
 <p>The sampled token is appended to the context, and the process repeats: new context → forward pass → logits → softmax → sample → next token. This is called <strong>autoregressive</strong> generation — "auto" because the model feeds its own previous output back in as input, "regressive" in the statistical sense of predicting a value from prior values in the same sequence. The loop continues until the model generates a special <strong>stop token</strong> (a designated token in the vocabulary that means "I'm done") or hits a maximum length limit.</p>
-<p>Temperature controls how random the sampling is. At τ → 0 (greedy), the model always picks the most likely token — fast but repetitive. At higher temperatures, lower-probability tokens get a chance, producing more creative and varied text at the cost of occasional incoherence.</p>`,
+<p>Temperature controls how random the sampling is. At ${imath('\\tau \\to 0')} (greedy), the distribution collapses to the most likely token — fast but repetitive. At higher temperatures, lower-probability tokens get a chance, producing more creative and varied text at the cost of occasional incoherence.</p>`,
   },
 
   // ── STEPS 20–21: bridging to real world (NEW) ─────────────────────────

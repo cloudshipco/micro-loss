@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import katex from 'katex'
 import { computeSoftmax } from '../../engine/softmax'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 import { computeCrossEntropyLoss } from '../../engine/loss'
 import { computeGradient } from '../../engine/gradient'
 import { computeUpdate } from '../../engine/update'
@@ -107,22 +110,11 @@ const maxEffectiveLR = computed(() => Math.max(...effectiveLRs.value, 0.001))
 <template>
   <div class="space-y-6">
 
-    <!-- What Adam does -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Why not just SGD?</strong>
-      Basic gradient descent (SGD) uses the same learning rate for every parameter.
-      <strong class="text-text-primary">Adam</strong> improves on this in two ways:
-      <strong class="text-text-primary">momentum</strong> (smoothing out noisy gradients by tracking a running average)
-      and <strong class="text-text-primary">adaptive learning rates</strong> (automatically using smaller steps for
-      parameters with large gradients and larger steps for parameters with small gradients).
-      Nearly every modern neural network is trained with Adam or a close variant.
-    </div>
-
     <!-- Controls -->
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-lg bg-surface-light p-4">
         <div class="flex items-center justify-between">
-          <h4 class="text-sm font-medium text-text-secondary">Learning rate &eta;</h4>
+          <h4 class="text-sm font-medium text-text-secondary">Learning rate η</h4>
           <span class="font-mono text-sm text-brand-light">{{ learningRate.toFixed(2) }}</span>
         </div>
         <input
@@ -137,7 +129,7 @@ const maxEffectiveLR = computed(() => Math.max(...effectiveLRs.value, 0.001))
       </div>
       <div class="rounded-lg bg-surface-light p-4">
         <div class="flex items-center justify-between">
-          <h4 class="text-sm font-medium text-text-secondary">Momentum &beta;<sub>1</sub></h4>
+          <h4 class="text-sm font-medium text-text-secondary">Momentum <span v-html="km('\\beta_1')"></span></h4>
           <span class="font-mono text-sm text-brand-light">{{ beta1.toFixed(2) }}</span>
         </div>
         <input
@@ -267,11 +259,11 @@ const maxEffectiveLR = computed(() => Math.max(...effectiveLRs.value, 0.001))
       <div class="mt-2 space-y-2">
         <div class="flex items-start gap-2">
           <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-lighter text-xs font-bold text-text-secondary">1</span>
-          <p><strong class="text-text-primary">Momentum</strong> (&beta;<sub>1</sub>): Keep a running average of past gradients. This smooths out noise — if the gradient has been consistently pushing left, keep going left even if one step says go right.</p>
+          <p><strong class="text-text-primary">Momentum</strong> (<span v-html="km('\\beta_1')"></span>): Keep a running average of past gradients. This smooths out noise — if the gradient has been consistently pushing left, keep going left even if one step says go right.</p>
         </div>
         <div class="flex items-start gap-2">
           <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-lighter text-xs font-bold text-text-secondary">2</span>
-          <p><strong class="text-text-primary">Adaptive rates</strong> (&beta;<sub>2</sub>): Track how large gradients have been for each parameter. Divide the step by this history — large-gradient parameters automatically get smaller steps.</p>
+          <p><strong class="text-text-primary">Adaptive rates</strong> (<span v-html="km('\\beta_2')"></span>): Track how large gradients have been for each parameter. Divide the step by this history — large-gradient parameters automatically get smaller steps.</p>
         </div>
         <div class="flex items-start gap-2">
           <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-lighter text-xs font-bold text-text-secondary">3</span>
@@ -284,7 +276,7 @@ const maxEffectiveLR = computed(() => Math.max(...effectiveLRs.value, 0.001))
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Try it:</strong>
       Set the learning rate to 2.0, reset, and run 50 steps. Watch SGD oscillate wildly while
-      Adam stays smooth. Then try &beta;<sub>1</sub> = 0 (no momentum) — Adam still adapts per-parameter
+      Adam stays smooth. Then try <span v-html="km('\\beta_1')"></span> = 0 (no momentum) — Adam still adapts per-parameter
       learning rates but loses the smoothing effect.
     </div>
   </div>

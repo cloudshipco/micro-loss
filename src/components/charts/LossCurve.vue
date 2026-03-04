@@ -22,15 +22,6 @@ const curvePoints = computed(() => {
   return points
 })
 
-// Generate the (1-p) curve for comparison
-const linearPoints = computed(() => {
-  const points: number[][] = []
-  for (let p = 0.01; p <= 1.0; p += 0.01) {
-    points.push([Math.round(p * 100) / 100, 1 - p])
-  }
-  return points
-})
-
 const option = computed(() => ({
   tooltip: {
     trigger: 'axis' as const,
@@ -51,7 +42,7 @@ const option = computed(() => ({
   },
   xAxis: {
     type: 'value' as const,
-    name: 'p (probability of target)',
+    name: 'p (probability assigned to correct token)',
     nameLocation: 'middle' as const,
     nameGap: 25,
     nameTextStyle: { color: '#9e9bb0' },
@@ -63,18 +54,13 @@ const option = computed(() => ({
   },
   yAxis: {
     type: 'value' as const,
-    name: '-log(p)',
+    name: 'Cross-entropy loss  −log(p)',
     nameTextStyle: { color: '#9e9bb0' },
     max: 5,
     axisLabel: { color: '#9e9bb0' },
     splitLine: { lineStyle: { color: '#363254', type: 'dashed' as const } },
   },
-  legend: {
-    data: ['-log(p)', '1 - p'],
-    textStyle: { color: '#9e9bb0' },
-    top: 0,
-    right: 0,
-  },
+  legend: { show: false },
   grid: { left: 60, right: 20, top: 30, bottom: 40 },
   series: [
     {
@@ -85,14 +71,6 @@ const option = computed(() => ({
       symbol: 'none',
       lineStyle: { color: '#6366f1', width: 2 },
       areaStyle: { color: { type: 'linear' as const, x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: 'rgba(99, 102, 241, 0.3)' }, { offset: 1, color: 'rgba(99, 102, 241, 0)' }] } },
-    },
-    {
-      name: '1 - p',
-      type: 'line' as const,
-      data: linearPoints.value,
-      smooth: true,
-      symbol: 'none',
-      lineStyle: { color: '#9e9bb0', width: 1.5, type: 'dashed' as const },
     },
     {
       type: 'line' as const,

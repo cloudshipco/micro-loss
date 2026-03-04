@@ -153,18 +153,6 @@ function formatParam(n: number): string {
       </p>
     </div>
 
-    <!-- What parameters actually are -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">What parameters actually are:</strong>
-      Concretely, a parameter is a single floating-point number — something like
-      <span class="font-mono text-brand-light">0.3471</span> — stored in memory.
-      The model contains billions of these numbers organised into matrices.
-      When the model runs, those matrices multiply and add with the input data
-      to produce the output scores. During training, each parameter is nudged up or
-      down by a tiny amount. That nudging, applied billions of times across billions
-      of parameters, is what produces a model that can write coherent text.
-    </div>
-
     <!-- Parameter inventory table -->
     <div class="rounded-lg bg-surface-light p-4">
       <h4 class="mb-2 text-sm font-medium text-text-secondary">

@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import GradientArrows from '../ui/GradientArrows.vue'
 import MathBlock from '../ui/MathBlock.vue'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
 const state = createTutorialState()
 provideTutorialState(state)
@@ -9,16 +12,11 @@ provideTutorialState(state)
 
 <template>
   <div class="space-y-6">
-    <MathBlock size="md">
-      <span class="text-text-secondary">&nabla;<sub>z</sub>L = </span>
-      <span class="text-brand-light">p</span>
-      <span class="text-text-secondary"> &minus; </span>
-      <span class="text-positive">y</span>
-    </MathBlock>
+    <MathBlock latex="\nabla_z L = \color{#6366f1}{p} - \color{#34d399}{y}" size="md" />
 
     <!-- Intuitive derivation -->
     <div class="rounded-lg bg-surface-light p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Why p &minus; y?</strong>
+      <strong class="text-text-primary">Why <span v-html="km('p - y')"></span>?</strong>
       <p class="mt-2">
         The gradient measures: "if I nudge this logit up a tiny bit, how much does the loss change?"
         For the <strong class="text-positive">correct token</strong>, making its logit bigger increases
@@ -80,9 +78,9 @@ provideTutorialState(state)
 
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-text-primary">Key insight:</strong>
-      The gradient for the correct token is <span class="font-mono text-positive">p &minus; 1</span> (always negative, pushing its logit up).
-      For all other tokens it's just <span class="font-mono text-negative">p</span> (always positive, pushing logits down in proportion to how much probability they "stole").
-      The entire gradient is just the gap between prediction and truth &mdash; <strong>p &minus; y</strong>.
+      The gradient for the correct token is <span class="text-positive" v-html="km('p - 1')"></span> (always negative, pushing its logit up).
+      For all other tokens it's just <span class="text-negative" v-html="km('p')"></span> (always positive, pushing logits down in proportion to how much probability they captured).
+      The entire gradient is just the gap between prediction and truth — <strong v-html="km('p - y')"></strong>.
     </div>
   </div>
 </template>

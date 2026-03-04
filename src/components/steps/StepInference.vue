@@ -67,14 +67,6 @@ function getLossColor(p: number): string {
 
 <template>
   <div class="space-y-6">
-    <!-- What inference is -->
-    <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Inference (generation):</strong>
-      After training, the model generates text autoregressively: run the forward pass → get logits →
-      apply softmax → <strong class="text-text-primary">sample</strong> a token from the distribution
-      → append it to the context → repeat. Each new token extends the context for the next step.
-    </div>
-
     <!-- Growing sequence display -->
     <div class="rounded-lg bg-surface-light p-5">
       <div class="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">Generated sequence</div>

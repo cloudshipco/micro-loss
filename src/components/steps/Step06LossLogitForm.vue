@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import MathBlock from '../ui/MathBlock.vue'
 import ValueDisplay from '../ui/ValueDisplay.vue'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
 const state = createTutorialState()
 provideTutorialState(state)
@@ -13,23 +16,18 @@ const targetLogit = computed(() => state.logits.value[state.targetIndex.value])
 
 <template>
   <div class="space-y-6">
-    <MathBlock size="md">
-      <span class="text-text-secondary">L = </span>
-      <span class="text-negative">&minus;z<sub>y</sub></span>
-      <span class="text-text-secondary"> + </span>
-      <span class="text-warning">log &Sigma; e<sup>z<sub>j</sub></sup></span>
-    </MathBlock>
+    <MathBlock latex="L = \color{#f87171}{-z_y} + \color{#f59e0b}{\log \sum e^{z_j}}" size="md" />
 
     <!-- Concrete substitution -->
     <div class="rounded-lg bg-surface-light p-4">
       <h4 class="mb-3 text-sm font-medium text-text-secondary">Substituting current values:</h4>
       <div class="space-y-2 font-mono text-sm">
         <div>
-          <span class="text-text-secondary">L = &minus;</span>
-          <span class="text-negative">z<sub>{{ targetToken }}</sub></span>
+          <span class="text-text-secondary" v-html="km('L = -')"></span>
+          <span class="text-negative" v-html="km(`z_{\\text{${targetToken}}}`)"></span>
           <span class="text-text-secondary"> + log(</span>
           <span v-for="(token, index) in state.tokens" :key="token">
-            <span class="text-text-secondary">e<sup><span :style="{ color: state.tokenColors[index] }">{{ state.logits.value[index].toFixed(1) }}</span></sup></span>
+            <span class="text-text-secondary" v-html="km(`e^{\\color{${state.tokenColors[index]}}{${state.logits.value[index].toFixed(1)}}}`)"></span>
             <span v-if="index < state.tokens.length - 1" class="text-text-secondary"> + </span>
           </span>
           <span class="text-text-secondary">)</span>
@@ -56,7 +54,7 @@ const targetLogit = computed(() => state.logits.value[state.targetIndex.value])
 
     <div class="grid gap-4 sm:grid-cols-3">
       <div class="rounded-lg bg-surface-light p-4 text-center">
-        <div class="text-xs uppercase tracking-wider text-text-secondary">&minus;z<sub>y</sub> (raise correct)</div>
+        <div class="text-xs uppercase tracking-wider text-text-secondary"><span v-html="km('-z_y')"></span> (raise correct)</div>
         <div class="mt-2 font-mono text-2xl font-bold text-negative">
           {{ (-targetLogit).toFixed(3) }}
         </div>
@@ -66,7 +64,7 @@ const targetLogit = computed(() => state.logits.value[state.targetIndex.value])
       </div>
       <div class="flex items-center justify-center text-3xl text-text-secondary">+</div>
       <div class="rounded-lg bg-surface-light p-4 text-center">
-        <div class="text-xs uppercase tracking-wider text-text-secondary">log &Sigma; e<sup>z<sub>j</sub></sup> (suppress all)</div>
+        <div class="text-xs uppercase tracking-wider text-text-secondary"><span v-html="km('\\log \\sum e^{z_j}')"></span> (suppress all)</div>
         <div class="mt-2 font-mono text-2xl font-bold text-warning">
           {{ state.lossDetailed.value.logSumExp.toFixed(3) }}
         </div>
@@ -84,16 +82,10 @@ const targetLogit = computed(() => state.logits.value[state.targetIndex.value])
     </div>
 
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Key insight &mdash; two forces at work:</strong>
-      <ol class="mt-2 list-inside list-decimal space-y-1">
-        <li><span class="text-negative">&minus;z<sub>y</sub></span> &mdash; Increasing the correct token's logit directly reduces loss</li>
-        <li><span class="text-warning">log &Sigma; e<sup>z<sub>j</sub></sup></span> &mdash; But all logits contribute to this competitor term. Lowering competitors also helps.</li>
-      </ol>
-      <p class="mt-2">
-        The optimal strategy isn't to make the target logit infinitely large &mdash; it's to make it
-        large <em>relative</em> to the others. A target logit of 10 with competitors at 0 gives the
-        same loss as a target of 110 with competitors at 100.
-      </p>
+      <strong class="text-text-primary">Only relative values matter:</strong>
+      A target logit of 10 with competitors at 0 gives the
+      same loss as a target of 110 with competitors at 100. The optimal strategy isn't to make the
+      target logit infinitely large &mdash; it's to make it large <em>relative</em> to the others.
     </div>
   </div>
 </template>

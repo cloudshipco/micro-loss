@@ -3,7 +3,7 @@
     <div class="mx-auto flex max-w-4xl items-center px-6 py-4">
       <div>
         <h1 class="text-2xl font-bold tracking-tight">
-          <span class="text-brand-light">micro</span><span class="text-text-primary">GPT</span>
+          <span class="text-brand-light">Micro</span><span class="text-text-primary">Loss</span>
         </h1>
         <p class="text-sm text-text-secondary">Interactive language model training tutorial</p>
       </div>

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
-import BarChart from '../charts/BarChart.vue'
+import LogitSliders from '../ui/LogitSliders.vue'
 import PieChart from '../charts/PieChart.vue'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
 const state = createTutorialState()
 provideTutorialState(state)
@@ -21,6 +24,7 @@ function shiftAllLogits(delta: number) {
 
 <template>
   <div class="space-y-4">
+    <LogitSliders />
     <!-- Step-by-step computation -->
     <div class="rounded-lg bg-surface-light p-4">
       <h4 class="mb-3 text-sm font-medium text-text-secondary">Full computation with current values:</h4>
@@ -39,31 +43,23 @@ function shiftAllLogits(delta: number) {
       </div>
     </div>
 
-    <!-- Probability values -->
-    <div class="flex flex-wrap gap-4">
-      <div
-        v-for="(token, index) in state.tokens"
-        :key="token"
-        class="rounded-lg bg-surface-light px-4 py-2"
-      >
-        <div class="text-xs text-text-secondary">p({{ token }})</div>
-        <div class="font-mono text-lg font-bold" :style="{ color: state.tokenColors[index] }">
-          {{ (state.probabilities.value[index] * 100).toFixed(1) }}%
+    <!-- Logits → probabilities side by side with doughnut -->
+    <div class="grid gap-6 md:grid-cols-2">
+      <!-- Logit and probability values -->
+      <div class="space-y-2">
+        <div class="grid grid-cols-[auto_1fr_1fr] gap-x-4 gap-y-2 text-sm">
+          <div />
+          <div class="text-xs font-medium text-text-secondary">logit</div>
+          <div class="text-xs font-medium text-text-secondary">probability</div>
+          <template v-for="(token, index) in state.tokens" :key="token">
+            <span class="font-mono font-semibold" :style="{ color: state.tokenColors[index] }">{{ token }}</span>
+            <span class="font-mono text-text-secondary">{{ state.logits.value[index] >= 0 ? '+' : '' }}{{ state.logits.value[index].toFixed(2) }}</span>
+            <span class="font-mono font-bold" :style="{ color: state.tokenColors[index] }">{{ (state.probabilities.value[index] * 100).toFixed(1) }}%</span>
+          </template>
         </div>
       </div>
-    </div>
 
-    <div class="grid gap-6 md:grid-cols-2">
-      <BarChart
-        :labels="labels"
-        :values="state.probabilities.value"
-        :colors="state.tokenColors"
-        title="Probabilities"
-        :precision="4"
-        y-axis-label="probability"
-        :y-min="0"
-        :y-max="1"
-      />
+      <!-- Doughnut chart -->
       <PieChart
         :labels="labels"
         :values="state.probabilities.value"
@@ -112,15 +108,15 @@ function shiftAllLogits(delta: number) {
       <p class="mt-3 text-sm text-text-secondary">
         The probabilities don't change! Shifting all logits by the same amount cancels out in the
         division. This means you can effectively remove a token from consideration by giving it
-        an extremely negative logit, because e<sup>(very negative)</sup> is essentially 0.
+        an extremely negative logit, because <span v-html="km('e^{\\text{(very negative)}}')"></span> is essentially 0.
       </p>
     </div>
 
     <!-- Competition insight -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">
       <strong class="text-text-primary">Key insight &mdash; softmax enforces competition:</strong>
-      The probabilities always sum to exactly 1.0 — check the pie chart. Every token's probability
-      comes at the expense of the others. Try raising just one token's logit using the sliders above &mdash;
+      The probabilities always sum to exactly 1.0 — check the chart. Every token's probability
+      comes at the expense of the others. Try raising just one token's logit &mdash;
       watch how the other tokens' probabilities shrink. Softmax redistributes belief: there's a fixed
       amount of probability to go around, and the tokens are competing for it.
     </div>

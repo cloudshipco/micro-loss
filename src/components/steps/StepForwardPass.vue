@@ -54,20 +54,20 @@ function fmt(n: number): string {
   return n >= 0 ? '+' + s : s
 }
 
-async function animate() {
-  stage.value = 1
-  await delay(1000)
-  stage.value = 2
-  await delay(1200)
-  stage.value = 3
-  await delay(1200)
-  stage.value = 4
-  await delay(2000)
-  stage.value = 0
+function stepForward() {
+  if (stage.value < 4) {
+    stage.value = (stage.value + 1) as 1 | 2 | 3 | 4
+  }
 }
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+function stepBack() {
+  if (stage.value > 0) {
+    stage.value = (stage.value - 1) as 0 | 1 | 2 | 3
+  }
+}
+
+function resetStages() {
+  stage.value = 0
 }
 </script>
 
@@ -148,7 +148,7 @@ function delay(ms: number) {
       </div>
 
       <div class="overflow-x-auto">
-        <svg viewBox="0 0 760 290" class="min-w-[760px]" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 760 195" class="min-w-[760px]" xmlns="http://www.w3.org/2000/svg">
           <!-- ── Token IDs column ── -->
           <text x="60" y="20" text-anchor="middle" fill="#9e9bb0" font-size="11" font-weight="600">Token IDs</text>
 
@@ -256,19 +256,6 @@ function delay(ms: number) {
           <line x1="535" y1="78" x2="580" y2="78" stroke="#363254" stroke-width="1" opacity="0.3"/>
           <line x1="535" y1="100" x2="580" y2="108" stroke="#34d399" stroke-width="1.5" opacity="0.7"/>
 
-          <!-- ── Caption ── -->
-          <text x="10" y="210" fill="#9e9bb0" font-size="10">
-            <tspan x="10" dy="0" font-weight="600" fill="#e2e0ea">Embedding lookup:</tspan>
-            <tspan> each token ID selects a row from the matrix — a table lookup, not a computation.</tspan>
-          </text>
-          <text x="10" y="228" fill="#9e9bb0" font-size="10">
-            <tspan font-weight="600" fill="#e2e0ea">Position embeddings</tspan>
-            <tspan> are added so the model knows word order (otherwise "the cat ate" = "ate cat the").</tspan>
-          </text>
-          <text x="10" y="246" fill="#9e9bb0" font-size="10">
-            <tspan font-weight="600" fill="#e2e0ea">Only the final position</tspan>
-            <tspan> produces the context vector — earlier positions' outputs are discarded.</tspan>
-          </text>
         </svg>
       </div>
     </div>
@@ -292,7 +279,7 @@ function delay(ms: number) {
     <div class="rounded-lg bg-surface-light p-5">
       <div class="mb-1 text-sm font-medium text-text-secondary">Inside the forward pass</div>
       <div class="mb-4 text-xs text-text-secondary">
-        Press animate to step through what happens when context tokens
+        Step through what happens when context tokens
         <span v-for="(t, i) in exampleTokens" :key="t.word">
           <span class="font-mono font-semibold" :style="{ color: t.color }">{{ t.word }}</span><span v-if="i < exampleTokens.length - 1">,
           </span>
@@ -390,19 +377,30 @@ function delay(ms: number) {
         </div>
       </div>
 
-      <!-- Animate button + status -->
-      <div class="mt-4 flex items-center gap-4">
+      <!-- Step controls -->
+      <div class="mt-4 flex items-center gap-2">
         <button
-          @click="animate"
-          :disabled="stage !== 0"
-          class="rounded-lg border border-brand/50 bg-brand/10 px-5 py-2 text-sm font-medium text-brand-light transition hover:bg-brand/20 disabled:opacity-50"
+          @click="stepBack"
+          :disabled="stage === 0"
+          class="rounded-lg border border-surface-lighter bg-surface px-3 py-1.5 text-sm font-medium text-text-secondary transition hover:border-brand hover:text-text-primary disabled:opacity-40"
         >
-          Animate
+          &larr; Back
         </button>
-        <span v-if="stage === 1" class="text-sm text-brand-light">Token IDs enter…</span>
-        <span v-else-if="stage === 2" class="text-sm text-brand-light">Embedding lookup…</span>
-        <span v-else-if="stage === 3" class="text-sm text-brand-light">Layer transforms vectors…</span>
-        <span v-else-if="stage === 4" class="text-sm text-positive">Context vector produced</span>
+        <button
+          @click="stepForward"
+          :disabled="stage === 4"
+          class="rounded-lg border border-brand/50 bg-brand/10 px-3 py-1.5 text-sm font-medium text-brand-light transition hover:bg-brand/20 disabled:opacity-40"
+        >
+          Next &rarr;
+        </button>
+        <button
+          v-if="stage > 0"
+          @click="resetStages"
+          class="rounded-lg border border-surface-lighter bg-surface px-3 py-1.5 text-sm font-medium text-text-secondary transition hover:border-brand hover:text-text-primary"
+        >
+          Reset
+        </button>
+        <span class="ml-2 text-xs text-text-secondary">{{ stage }} / 4</span>
       </div>
     </div>
 

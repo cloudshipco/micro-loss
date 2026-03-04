@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import katex from 'katex'
 import { TOKENS, TOKEN_COLORS } from '../../engine/types'
 import { EXAMPLE_CONTEXT_VECTOR } from '../../engine/model-config'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
 const exampleLogits = [0.1, 0.5, 1.0, 2.0]
 
@@ -21,10 +24,7 @@ const contextVectorPreview = EXAMPLE_CONTEXT_VECTOR
     <div class="rounded-lg bg-surface-light p-5">
       <div class="mb-1 text-sm font-medium text-text-secondary">The vocabulary comparison</div>
       <div class="mb-4 text-xs text-text-secondary">
-        Each vocabulary token has its own learned vector — a
-        <strong class="text-text-primary">vocabulary embedding</strong>.
-        The model computes a <strong class="text-text-primary">dot product</strong> between the
-        context vector and each vocabulary embedding to get one score per token.
+        One dot product per vocabulary token → one score per token.
       </div>
 
       <div class="flex flex-col items-center gap-4 md:flex-row md:items-start">
@@ -59,7 +59,7 @@ const contextVectorPreview = EXAMPLE_CONTEXT_VECTOR
             >
               <span class="w-10 font-semibold" :style="{ color: TOKEN_COLORS[i] }">{{ token }}</span>
               <span class="flex-1 text-xs text-text-secondary">
-                <em>h</em> &middot; <em>w</em><sub>{{ token }}</sub>
+                <span v-html="km(`\\mathbf{h} \\cdot \\mathbf{w}_{\\text{${token}}}`)"></span>
               </span>
               <span class="text-text-secondary">=</span>
               <span class="w-10 text-right font-bold text-brand-light">{{ exampleLogits[i].toFixed(1) }}</span>
@@ -71,12 +71,11 @@ const contextVectorPreview = EXAMPLE_CONTEXT_VECTOR
 
     <!-- Why dot products measure compatibility -->
     <div class="rounded-lg bg-surface-light p-4 text-sm text-text-secondary">
-      <strong class="text-text-primary">Why a dot product measures compatibility:</strong>
+      <strong class="text-text-primary">Geometric intuition:</strong>
       <p class="mt-2">
-        A dot product multiplies each pair of corresponding numbers from two vectors and sums
-        the results. If the context vector and a vocabulary vector have large values in the same
+        If the context vector and a vocabulary vector have large values in the same
         positions — meaning they are "pointing in similar directions" in the model's learned space —
-        the sum is large. If they point in opposite directions, the sum is small or negative.
+        the dot product is large. If they point in opposite directions, it is small or negative.
       </p>
       <p class="mt-2">
         Training gradually steers the context vector for <em>"the cat ate"</em> to

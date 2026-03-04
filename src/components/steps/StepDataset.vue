@@ -128,13 +128,5 @@ function next() {
         </div>
       </div>
     </div>
-
-    <!-- Scale note -->
-    <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
-      <strong class="text-brand-light">Simplified vocabulary:</strong>
-      We're using just 4 tokens (the, cat, ate, fish) throughout this tutorial for visual clarity.
-      Real models like GPT-4 have vocabularies of <strong class="text-text-primary">~100,000 tokens</strong>
-      — words, word-pieces, punctuation, and special characters. The math is identical; only the scale differs.
-    </div>
   </div>
 </template>

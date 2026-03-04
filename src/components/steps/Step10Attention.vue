@@ -30,11 +30,7 @@ const colors = ['#6366f1', '#f59e0b', '#10b981', '#ef4444'] as const
 
 <template>
   <div class="space-y-6">
-    <MathBlock size="md">
-      <span class="text-text-secondary">Attention = softmax(</span>
-      <span class="text-brand-light">QK<sup>T</sup></span>
-      <span class="text-text-secondary">)V</span>
-    </MathBlock>
+    <MathBlock latex="\text{Attention} = \text{softmax}(\color{#6366f1}{QK^T})V" size="md" />
 
     <!-- Tie-back to the main tutorial -->
     <div class="rounded-lg border border-surface-lighter bg-surface-light/50 p-4 text-sm text-text-secondary">

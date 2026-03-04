@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import katex from 'katex'
 import { useComputationGraph } from '../../composables/useComputationGraph'
 import { TOKEN_COLORS } from '../../engine/types'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
 const DEFAULT_LOGITS = [0.1, 0.5, 1.0, 2.0]
 const TARGET_INDEX = 3 // fish
@@ -26,28 +29,28 @@ const chainRuleRows = computed(() => {
   const p = g.pTarget.data
   return [
     {
-      label: '∂Loss/∂log(p)',
-      formula: '−1',
+      labelHtml: km('\\partial L / \\partial \\log(p)'),
+      formulaHtml: km('-1'),
       value: -1,
-      description: 'Derivative of −log(p) w.r.t. log(p)',
+      description: `Derivative of ${km('-\\log(p)')} w.r.t. ${km('\\log(p)')}`,
     },
     {
-      label: '∂log(p)/∂p',
-      formula: '1/p',
+      labelHtml: km('\\partial \\log(p) / \\partial p'),
+      formulaHtml: km('1/p'),
       value: 1 / p,
-      description: `Derivative of log(p) w.r.t. p = 1/${p.toFixed(4)}`,
+      description: `Derivative of ${km('\\log(p)')} w.r.t. ${km('p')} = ${km(`1/${p.toFixed(4)}`)}`,
     },
     {
-      label: '∂p/∂z (for target)',
-      formula: 'p(1−p)',
+      labelHtml: km('\\partial p / \\partial z') + ' (for target)',
+      formulaHtml: km('p(1-p)'),
       value: p * (1 - p),
-      description: `Softmax derivative = ${p.toFixed(4)} × ${(1 - p).toFixed(4)}`,
+      description: `Softmax derivative = ${km(`${p.toFixed(4)} \\times ${(1 - p).toFixed(4)}`)}`,
     },
     {
-      label: '∂Loss/∂z (chain rule)',
-      formula: '−1 × 1/p × p(1−p) = −(1−p) = p−1',
+      labelHtml: km('\\partial L / \\partial z') + ' (chain rule)',
+      formulaHtml: km('-1 \\times 1/p \\times p(1-p) = -(1-p) = p-1'),
       value: p - 1,
-      description: `The elegant result: ${p.toFixed(4)} − 1 = ${(p - 1).toFixed(4)}`,
+      description: `The clean result: ${km(`${p.toFixed(4)} - 1 = ${(p - 1).toFixed(4)}`)}`,
     },
   ]
 })
@@ -69,6 +72,15 @@ function getEdgePath(edge: { from: string; to: string }): string {
   const toNode = nodes.value.find(n => n.id === edge.to)
   if (!fromNode || !toNode) return ''
 
+  // Vertical relationship (same x): route from top/bottom center
+  if (fromNode.x === toNode.x) {
+    const goingUp = fromNode.y > toNode.y
+    const y1 = goingUp ? fromNode.y - 28 : fromNode.y + 28
+    const y2 = goingUp ? toNode.y + 28 : toNode.y - 28
+    return `M ${fromNode.x} ${y1} L ${fromNode.x} ${y2}`
+  }
+
+  // Horizontal relationship: Bezier from right side to left side
   const x1 = fromNode.x + 40
   const y1 = fromNode.y
   const x2 = toNode.x - 40
@@ -189,6 +201,14 @@ function getEdgePath(edge: { from: string; to: string }): string {
         </svg>
       </div>
 
+      <!-- Nabla explanation (shown during backward pass) -->
+      <p v-if="mode === 'backward'" class="mt-3 text-xs text-text-secondary">
+        <strong class="text-[#f59e0b]">∇</strong> (nabla) shows the <strong class="text-text-primary">gradient</strong> at each node —
+        how much the final loss would change if that node's value changed by a tiny amount.
+        <strong class="text-[#f59e0b]">∇ 1.0000</strong> on the Loss node is the trivial starting point: a change of 1 in the loss
+        causes a change of 1 in the loss. Backpropagation works backward from this anchor, computing ∇ for every upstream node.
+      </p>
+
       <!-- Controls -->
       <div class="mt-3 flex flex-wrap items-center gap-2">
         <button
@@ -228,7 +248,7 @@ function getEdgePath(edge: { from: string; to: string }): string {
     <!-- Chain rule derivation -->
     <div class="rounded-lg bg-surface-light p-5">
       <h4 class="mb-3 text-sm font-medium text-text-secondary">
-        Chain rule: how p &minus; y emerges
+        Chain rule: how <span v-html="km('p - y')"></span> emerges
       </h4>
       <p class="mb-4 text-sm text-text-secondary">
         Each step backward multiplies by the local derivative. Watch the chain rule build up
@@ -251,24 +271,24 @@ function getEdgePath(edge: { from: string; to: string }): string {
           </div>
           <div class="flex-1 min-w-0">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span class="text-sm font-medium text-text-primary">{{ row.label }}</span>
-              <span class="font-mono text-xs text-brand-light">= {{ row.formula }}</span>
+              <span class="text-sm font-medium text-text-primary" v-html="row.labelHtml"></span>
+              <span class="text-xs text-brand-light">= <span v-html="row.formulaHtml"></span></span>
               <span class="font-mono text-xs"
                 :class="i === chainRuleRows.length - 1 ? 'text-positive font-bold' : 'text-text-secondary'"
               >
                 = {{ row.value.toFixed(4) }}
               </span>
             </div>
-            <p class="mt-0.5 text-xs text-text-secondary">{{ row.description }}</p>
+            <p class="mt-0.5 text-xs text-text-secondary" v-html="row.description"></p>
           </div>
         </div>
       </div>
 
       <div class="mt-4 rounded-lg border border-positive/30 bg-positive/5 p-3 text-sm text-text-secondary">
         <strong class="text-positive">Result:</strong>
-        The chain rule collapses to <strong class="font-mono text-positive">p &minus; 1</strong> for the target token.
-        For non-target tokens, the derivation is similar but y = 0, giving gradient = <strong class="font-mono text-negative">p</strong>.
-        Combined: <strong class="font-mono text-text-primary">&nabla;L = p &minus; y</strong>.
+        The chain rule collapses to <strong class="text-positive"><span v-html="km('p - 1')"></span></strong> for the target token.
+        For non-target tokens, the derivation is similar but <span v-html="km('y = 0')"></span>, giving gradient = <strong class="text-negative"><span v-html="km('p')"></span></strong>.
+        Combined: <strong class="text-text-primary"><span v-html="km('\\nabla L = p - y')"></span></strong>.
       </div>
     </div>
 
@@ -278,7 +298,7 @@ function getEdgePath(edge: { from: string; to: string }): string {
       <p class="mb-3 text-sm text-text-secondary">
         When a variable feeds into <em>multiple</em> downstream computations, its gradient is the
         <strong class="text-text-primary">sum</strong> of gradients along each path. In our softmax,
-        each logit z<sub>i</sub> affects both exp(z<sub>i</sub>) and the sum &Sigma;e<sup>z</sup> —
+        each logit <span v-html="km('z_i')"></span> affects both <span v-html="km('e^{z_i}')"></span> and the sum <span v-html="km('\\sum e^z')"></span> —
         so its total gradient adds contributions from both paths.
       </p>
 
@@ -325,7 +345,7 @@ function getEdgePath(edge: { from: string; to: string }): string {
     <div class="rounded-lg border border-brand/30 bg-brand/5 p-4 text-sm text-text-secondary">
       <strong class="text-brand-light">Key takeaway:</strong>
       Backpropagation is just the chain rule applied systematically to a computation graph.
-      For our softmax + cross-entropy pipeline, the chain rule simplifies to <strong class="font-mono text-text-primary">p &minus; y</strong> —
+      For our softmax + cross-entropy pipeline, the chain rule simplifies to <strong class="text-text-primary"><span v-html="km('p - y')"></span></strong> —
       the prediction minus the truth. Every neural network uses this exact algorithm to compute gradients,
       just with far more nodes in the graph.
     </div>

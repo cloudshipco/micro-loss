@@ -1,31 +1,48 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import katex from 'katex'
 import { createTutorialState, provideTutorialState } from '../../composables/useTutorialState'
 import LogitSliders from '../ui/LogitSliders.vue'
-import BarChart from '../charts/BarChart.vue'
+
+const km = (latex: string) => katex.renderToString(latex, { throwOnError: false, displayMode: false })
 
 const state = createTutorialState()
 provideTutorialState(state)
-const labels = computed(() => [...state.tokens])
 
-// Logit difference → probability ratio for the top two tokens
+// All pairwise comparisons sorted by logit value (highest first)
 const sortedIndices = computed(() => {
   const indices = state.logits.value.map((_, i) => i)
   indices.sort((a, b) => state.logits.value[b] - state.logits.value[a])
   return indices
 })
 
+// Top two tokens comparison
 const topTwoRatio = computed(() => {
-  const topLogit = state.logits.value[sortedIndices.value[0]]
-  const secondLogit = state.logits.value[sortedIndices.value[1]]
+  const topIdx = sortedIndices.value[0]
+  const secondIdx = sortedIndices.value[1]
+  const topLogit = state.logits.value[topIdx]
+  const secondLogit = state.logits.value[secondIdx]
   const diff = topLogit - secondLogit
   return {
-    topToken: state.tokens[sortedIndices.value[0]],
-    secondToken: state.tokens[sortedIndices.value[1]],
-    diff: diff,
+    topToken: state.tokens[topIdx],
+    topColor: state.tokenColors[topIdx],
+    topLogit,
+    secondToken: state.tokens[secondIdx],
+    secondColor: state.tokenColors[secondIdx],
+    secondLogit,
+    diff,
     ratio: Math.exp(diff),
   }
 })
+
+// Sorted tokens with their logits for the ranking view
+const rankedTokens = computed(() =>
+  sortedIndices.value.map(i => ({
+    token: state.tokens[i],
+    color: state.tokenColors[i],
+    logit: state.logits.value[i],
+  }))
+)
 </script>
 
 <template>
@@ -51,35 +68,50 @@ const topTwoRatio = computed(() => {
         <h3 class="mb-3 text-sm font-medium text-text-secondary">Adjust logits</h3>
         <LogitSliders />
       </div>
-      <div>
-        <BarChart
-          :labels="labels"
-          :values="state.logits.value"
-          :colors="state.tokenColors"
-          title="Raw Logits"
-          :precision="1"
-          y-axis-label="logit value"
-          :y-min="-6"
-          :y-max="6"
-        />
-      </div>
-    </div>
 
-    <!-- Logit difference → probability ratio -->
-    <div class="rounded-lg bg-surface-light p-4 text-sm">
-      <strong class="text-text-primary">Logit difference → probability ratio:</strong>
-      <p class="mt-2 text-text-secondary">
-        <span class="font-mono" :style="{ color: state.tokenColors[sortedIndices[0]] }">{{ topTwoRatio.topToken }}</span>
-        has a logit
-        <span class="font-mono text-brand-light">{{ topTwoRatio.diff.toFixed(1) }}</span>
-        higher than
-        <span class="font-mono" :style="{ color: state.tokenColors[sortedIndices[1]] }">{{ topTwoRatio.secondToken }}</span>.
-        After exponentiation, that means
-        <span class="font-mono" :style="{ color: state.tokenColors[sortedIndices[0]] }">{{ topTwoRatio.topToken }}</span>
-        will be
-        <strong class="text-text-primary">e<sup>{{ topTwoRatio.diff.toFixed(1) }}</sup> &asymp; {{ topTwoRatio.ratio.toFixed(1) }}&times;</strong>
-        more probable. Logit differences map to multiplicative probability ratios.
-      </p>
+      <!-- Ranking + difference visualisation -->
+      <div class="rounded-lg bg-surface-light p-4">
+        <h3 class="mb-3 text-sm font-medium text-text-secondary">Ranking (highest → lowest)</h3>
+        <div class="space-y-2">
+          <div
+            v-for="(t, rank) in rankedTokens"
+            :key="t.token"
+            class="flex items-center gap-3"
+          >
+            <span class="w-5 text-right text-xs text-text-secondary">{{ rank + 1 }}.</span>
+            <span class="w-10 font-mono text-sm font-semibold" :style="{ color: t.color }">{{ t.token }}</span>
+            <!-- Relative bar: width based on position in min–max range -->
+            <div class="flex-1">
+              <div
+                class="h-5 rounded-r transition-all duration-200"
+                :style="{
+                  backgroundColor: t.color + '40',
+                  borderLeft: `3px solid ${t.color}`,
+                  width: rankedTokens.length > 1
+                    ? Math.max(8, ((t.logit - rankedTokens[rankedTokens.length - 1].logit) / Math.max(0.01, rankedTokens[0].logit - rankedTokens[rankedTokens.length - 1].logit)) * 100) + '%'
+                    : '100%',
+                }"
+              />
+            </div>
+            <span class="w-12 text-right font-mono text-xs text-text-secondary">{{ t.logit >= 0 ? '+' : '' }}{{ t.logit.toFixed(1) }}</span>
+          </div>
+        </div>
+
+        <!-- Difference annotation -->
+        <div class="mt-4 rounded-lg border border-surface-lighter bg-surface p-3">
+          <div class="flex items-center gap-2 text-sm">
+            <span class="font-mono font-semibold" :style="{ color: topTwoRatio.topColor }">{{ topTwoRatio.topToken }}</span>
+            <span class="text-text-secondary">−</span>
+            <span class="font-mono font-semibold" :style="{ color: topTwoRatio.secondColor }">{{ topTwoRatio.secondToken }}</span>
+            <span class="text-text-secondary">=</span>
+            <span class="font-mono font-semibold text-brand-light">{{ topTwoRatio.diff.toFixed(2) }}</span>
+          </div>
+          <div class="mt-1 text-xs text-text-secondary">
+            Difference of <span class="font-mono text-brand-light">{{ topTwoRatio.diff.toFixed(2) }}</span>
+            → ratio of <strong class="text-text-primary"><span v-html="km(`e^{${topTwoRatio.diff.toFixed(2)}} \\approx ${topTwoRatio.ratio.toFixed(2)}`)"></span>×</strong>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Try it callout -->
